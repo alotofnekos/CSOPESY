@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cstdlib>
+#include <conio.h>
+#include <stdio.h>
 
 void banner(){
 	std::cout <<"\n";
@@ -12,6 +14,17 @@ void banner(){
     std::cout << "|  $$$$$$/  $$$$$$/|  $$$$$$/| $$      | $$$$$$$$|  $$$$$$/    | $$            _.-'_./   {_.'   ; /               \n";
     std::cout << " \\______/ \\______/  \\______/ |__/      |________/ \\______/     |__/           {_.-``-'         {_/               \n";
 	std::cout << "type 'exit' to quit, or 'clear' to clear the screen\n";
+}
+
+void non_blocking()
+{
+    char ch;
+
+    std::cout << "Press keys to display the character. Press 'q' to quit.\n";
+    while ((ch = _getch()) != 'q') {
+        std::cout << "Key pressed: " << ch << std::endl;
+    }
+	std::cout << "q pressed, exiting non-blocking mode... "<< std::endl; 
 }
 
 int interpreter(std::string command){
@@ -29,6 +42,9 @@ int interpreter(std::string command){
         std::cout << command << " command recognized. Doing something." << std::endl;
     } else if (command == "report-util") {
         std::cout << command << " command recognized. Doing something." << std::endl;
+    } else if (command == "non-blocking") {
+        std::cout << command << " command recognized. Doing something." << std::endl;
+        non_blocking();
     } else if (command == "exit") {
         isExit=1;
     } else {
