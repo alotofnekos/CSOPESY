@@ -32,43 +32,45 @@ void non_blocking()
 	std::cout << "q pressed, exiting non-blocking mode... "<< std::endl; 
 }
 
-std::string timestamp() {
-    time_t timestamp;
-    time(&timestamp);
-    struct tm *localTime = localtime(&timestamp);
-    char formattedTime[100];
-
-    strftime(formattedTime, sizeof(formattedTime), "%m/%d/%Y, %I:%M:%S %p", localTime);
-
-    return std::string(formattedTime);  
-}
-
 class Screen {
 private:
     std::string borderStyle;  
     std::string name;         
-    std::string creationDate; 
+    std::string createDateTime; 
+
+    std::string timestamp() const {
+        time_t currentTime;
+        time(&currentTime);
+        struct tm *localTime = localtime(&currentTime);
+        char formattedTime[100];
+
+        strftime(formattedTime, sizeof(formattedTime), "%m/%d/%Y, %I:%M:%S %p", localTime);
+        return std::string(formattedTime);  
+    }
 
 public:
     Screen(const std::string &borderStyle, const std::string &name)
-        : borderStyle(borderStyle), name(name), creationDate(timestamp()) {}
+        : borderStyle(borderStyle), name(name), createDateTime(timestamp()) {}
 
-    void create() const {
-        std::string content = " Screen Name: " + name + " \n Date Created: " + creationDate;
-        size_t width = std::max(static_cast<size_t>(content.length()), static_cast<size_t>(2));
-        //borders
+    void printScreen() const {
+        std::string content = " Screen Name: " + name + " \n Date Created: " + createDateTime;
+        size_t width = std::max(content.length(), static_cast<size_t>(2));
+
         std::cout << std::string(width, borderStyle[0]) << std::endl;
         std::cout << content << std::endl;
         std::cout << std::string(width, borderStyle[0]) << std::endl;
     }
+
     std::string getName() const {
         return name;
     }
 };
 
+
 class ScreenManager {
 private:
     std::vector<Screen> screens; 
+    Screen* activeScreen = nullptr;
     std::string getBorderStyle(size_t index) const {
         switch (index % 5) { 
             case 0: return "#";
@@ -81,21 +83,42 @@ private:
     }
 
 public:
-    
+    void setActiveScreen(const std::string &name) {
+        for (Screen &screen : screens) {
+            if (screen.getName() == name) {
+                activeScreen = &screen;
+                std::cout << "Switched to screen: " << name << std::endl;
+                return;
+            }
+        }
+        std::cout << "Screen not found. Remaining on the main screen." << std::endl;
+    }
+
     void addScreen(const std::string &name) {
         std::string borderStyle = getBorderStyle(screens.size()); 
         Screen newScreen(borderStyle, name); 
         screens.push_back(newScreen); 
+        callScreen(name); 
     }
 
-    void callScreen(const std::string &name) const {
+    void callScreen(const std::string &name) {
         for (size_t i = 0; i < screens.size(); ++i){ 
 	            if (screens[i].getName() == name) { 
-                screens[i].create(); 
+                screens[i].printScreen(); 
+                setActiveScreen(name);
                 return;
             }
         }
         std::cout << "Screen named \"" << name << "\" not found." << std::endl; 
+    }
+
+    void exitActiveScreen() {
+        if (activeScreen != nullptr) {
+            std::cout << "Exiting screen: " << activeScreen->getName() << std::endl;
+            activeScreen = nullptr;  
+        } else {
+            std::cout << "You are already on the main screen!" << std::endl;
+        }
     }
     
     bool screenExists(const std::string &name) const {
@@ -106,60 +129,76 @@ public:
         }
         return false;
     }
+
+    bool isOnMainScreen() const {
+        return activeScreen == nullptr;  
+    }
 };
 
-int interpreter(std::string command, ScreenManager& manager){
-	int isExit = 0;
-    if (command == "clear") {
-        system("cls"); 
-        banner();
-    } else if (command == "initialize") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
-    } else if (command.rfind("screen -s", 0) == 0) {
-        std::istringstream iss(command);
-        std::string cmd, dash_s, screenName;
-        iss >> cmd >> dash_s >> screenName;
-        if (!screenName.empty()) {
-            if (manager.screenExists(screenName)) {
-                std::cout << "Screen already exists. Opening " << screenName << std::endl;
-                manager.callScreen(screenName);
+int interpreter(std::string command, ScreenManager& manager) {
+    int isExit = 0;
+
+    if (manager.isOnMainScreen()) {  
+        if (command == "clear") {
+            system("cls");
+            banner();
+        } else if (command.rfind("screen -s", 0) == 0) {
+            std::istringstream iss(command);
+            std::string cmd, dash_s, screenName;
+            iss >> cmd >> dash_s >> screenName;
+            if (!screenName.empty()) {
+                if (manager.screenExists(screenName)) {
+                    std::cout << "Screen already exists. Switching to " << screenName << std::endl;
+                    manager.callScreen(screenName);
+                } else {
+                    std::cout << "Creating new screen: " << screenName << std::endl;
+                    manager.addScreen(screenName);
+                }
             } else {
-                std::cout << "Creating new screen: " << screenName << std::endl;
-                manager.addScreen(screenName);
-                manager.callScreen(screenName);
+                std::cout << "Error: No screen name provided!" << std::endl;
             }
+        } else if (command.rfind("screen -r", 0) == 0) {
+            std::istringstream iss(command);
+            std::string cmd, dash_r, screenName;
+            iss >> cmd >> dash_r >> screenName;
+
+            if (!screenName.empty()) {
+                if (manager.screenExists(screenName)) {
+                    std::cout << "Switching to screen: " << screenName << std::endl;
+                    manager.callScreen(screenName);
+                } else {
+                    std::cout << "Error: Screen '" << screenName << "' does not exist." << std::endl;
+                }
+            } else {
+                std::cout << "Error: No screen name provided!" << std::endl;
+            }
+        } else if (command == "exit") {
+            isExit = 1;
         } else {
-            std::cout << "Error: No screen name provided!" << std::endl;
+            std::cout << command << " is not recognized!" << std::endl;
         }
-    } else if (command.rfind("screen", 0) == 0) {
-    	std::cout << "Syntax: screen -s <name>" << std::endl;
-	} else if (command == "scheduler-test") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
-    } else if (command == "scheduler-stop") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
-    } else if (command == "report-util") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
-    } else if (command == "non-blocking") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
-        non_blocking();
-    } else if (command == "exit") {
-        isExit=1;
-    } else {
-        std::cout << command << " is not recognized!" << std::endl;
+    } else {  
+        if (command == "exit") {
+            manager.exitActiveScreen();
+        } else {
+            std::cout << "You are in a screen. Use 'exit' to return to the main menu." << std::endl;
+        }
     }
-	return isExit;
+
+    return isExit;
 }
 
 int main() {
     banner();
-    int isExit =0;
+    int isExit = 0;
     ScreenManager manager;
-   	std::string command;
-	do {
-    	std::cout << "Enter a command: ";
-    	std::getline(std::cin, command);
-    	isExit = interpreter(command, manager);
-	} while (isExit!=1);
+    std::string command;
 
-    exit (0);
+    do {
+        std::cout << "Enter a command: ";
+        std::getline(std::cin, command);
+        isExit = interpreter(command, manager);
+    } while (isExit != 1);
+
+    exit(0);
 }
