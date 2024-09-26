@@ -144,13 +144,23 @@ int interpreter(std::string command, ScreenManager& manager) {
     int isExit = 0;
 
     if (manager.isOnMainScreen()) {  
+        // Main Screen
         if (command == "clear") {
             system("cls");
             banner();
-        } else if (command.rfind("screen -s", 0) == 0) {
-            std::istringstream iss(command);
-            std::string cmd, dash_s, screenName;
-            iss >> cmd >> dash_s >> screenName;
+        } else if (command == "scheduler-test") {
+            std::cout << "Running scheduler-test..." << std::endl;
+        } else if (command == "scheduler-stop") {
+            std::cout << "Stopping scheduler..." << std::endl;
+        } else if (command == "report-util") {
+            std::cout << "Generating utilization report..." << std::endl;
+        } else if (command == "non-blocking") {
+            std::cout << "Entering non-blocking mode..." << std::endl;
+            non_blocking();
+        // Create Screen Command 
+        } else if (command.find("screen -s") == 0) { 
+            std::string screenName = command.substr(10);  
+
             if (!screenName.empty()) {
                 if (manager.screenExists(screenName)) {
                     std::cout << "Screen already exists. Switching to " << screenName << std::endl;
@@ -162,10 +172,9 @@ int interpreter(std::string command, ScreenManager& manager) {
             } else {
                 std::cout << "Error: No screen name provided!" << std::endl;
             }
-        } else if (command.rfind("screen -r", 0) == 0) {
-            std::istringstream iss(command);
-            std::string cmd, dash_r, screenName;
-            iss >> cmd >> dash_r >> screenName;
+        // Switch Screen Command 
+        } else if (command.rfind("screen -r", 0) == 0) {  
+            std::string screenName = command.substr(10);
 
             if (!screenName.empty()) {
                 if (manager.screenExists(screenName)) {
@@ -177,11 +186,14 @@ int interpreter(std::string command, ScreenManager& manager) {
             } else {
                 std::cout << "Error: No screen name provided!" << std::endl;
             }
-        } else if (command == "exit") {
+        // End Process Command
+        } else if (command == "exit") {  
             isExit = 1;
+
         } else {
             std::cout << command << " is not recognized!" << std::endl;
         }
+    // Non-Main Screen Commands
     } else {  
         if (command == "exit") {
             manager.exitActiveScreen();
