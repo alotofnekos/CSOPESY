@@ -149,11 +149,11 @@ int interpreter(std::string command, ScreenManager& manager) {
             system("cls");
             banner();
         } else if (command == "scheduler-test") {
-            std::cout << "Running scheduler-test..." << std::endl;
+           std::cout << command << " command recognized. Doing something." << std::endl;
         } else if (command == "scheduler-stop") {
-            std::cout << "Stopping scheduler..." << std::endl;
+            std::cout << command << " command recognized. Doing something." << std::endl;
         } else if (command == "report-util") {
-            std::cout << "Generating utilization report..." << std::endl;
+           std::cout << command << " command recognized. Doing something." << std::endl;
         } else if (command == "non-blocking") {
             std::cout << "Entering non-blocking mode..." << std::endl;
             non_blocking();
@@ -186,8 +186,14 @@ int interpreter(std::string command, ScreenManager& manager) {
             } else {
                 std::cout << "Error: No screen name provided!" << std::endl;
             }
+        // Screen
+        } else if (command == "screen") {
+           std::cout << command << " command recognized. Doing something." << std::endl;
+           std::cout << "Displaying syntax for " << command << std::endl;
+           std::cout << command << "-r <name> Opens a screen if it exists" << std::endl;
+           std::cout << command << "-s <name> Opens a screen if it exists and creates it if it doesn't exist yet" << std::endl;
         // End Process Command
-        } else if (command == "exit") {  
+        }else if (command == "exit") {  
             isExit = 1;
 
         } else {
