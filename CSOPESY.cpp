@@ -7,6 +7,8 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>
+#include <thread> 
+#include <chrono> 
 
 void banner(){
 	std::cout <<"\n";
@@ -21,15 +23,12 @@ void banner(){
 	std::cout << "type 'exit' to quit, or 'clear' to clear the screen\n";
 }
 
-void non_blocking()
-{
-    char ch;
-
-    std::cout << "Press keys to display the character. Press 'q' to quit.\n";
-    while ((ch = _getch()) != 'q') {
-        std::cout << "Key pressed: " << ch << std::endl;
+void non_blocking() {
+    int ch;  
+    while ((ch = _getch()) != 'q') { 
+        char keyPressed = static_cast<char>(ch);
+        std::cout << "Key pressed: " << keyPressed << std::endl;
     }
-	std::cout << "q pressed, exiting non-blocking mode... "<< std::endl; 
 }
 
 class Screen {
@@ -49,10 +48,13 @@ private:
     }
 
 public:
-    Screen(const std::string &borderStyle, const std::string &name)
-        : borderStyle(borderStyle), name(name), createDateTime(timestamp()) {}
+    Screen(const std::string &borderStyle_, const std::string &name_)
+    : borderStyle(borderStyle_), name(name_), createDateTime(timestamp()) {}
+
 
     void printScreen() const {
+    	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); 
+    	system("cls");
         std::string content = " Screen Name: " + name + " \n Date Created: " + createDateTime;
         size_t width = std::max(content.length(), static_cast<size_t>(2));
 
@@ -115,6 +117,9 @@ public:
     void exitActiveScreen() {
         if (activeScreen != nullptr) {
             std::cout << "Exiting screen: " << activeScreen->getName() << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000)); 
+            system("cls");
+            banner();
             activeScreen = nullptr;  
         } else {
             std::cout << "You are already on the main screen!" << std::endl;
