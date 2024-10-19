@@ -194,6 +194,23 @@ public:
     }
 };
 
+bool initialize_configs(std::string command){
+	bool initialized =false;
+	if (command == "initialize") {
+        if (initializeConfig()) {
+            std::cout << "Initialization successful!" << std::endl;
+            displayConfig();  
+            initialized = true;
+        } else {
+            std::cerr << "Initialization failed!" << std::endl;
+    	}
+	}
+    else{
+    	std::cerr << "Type initialize to setup the parameters for this emulator" << std::endl;
+	}
+	return initialized;
+}
+
 int interpreter(std::string command, ScreenManager& manager){
 
 	int isExit = 0;
@@ -248,7 +265,11 @@ int main() {
     ScreenManager manager;
    	std::string command;
    	bool initialized = false;
-
+	do {
+    	std::cout << "Enter a command: ";
+    	std::getline(std::cin, command);
+    	initialized = initialize_configs(command);
+	} while (initialized == false);
 	do {
     	std::cout << "Enter a command: ";
     	std::getline(std::cin, command);
