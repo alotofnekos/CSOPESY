@@ -7,6 +7,16 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>
+#include <sstream>
+#include <fstream>
+
+int num_cpu;
+std::string scheduler;
+int quantum_cycles;
+int batch_process_freq;
+int min_ins;
+int max_ins;
+int delays_per_exec;
 
 void banner(){
 	std::cout <<"\n";
@@ -41,6 +51,82 @@ std::string timestamp() {
     strftime(formattedTime, sizeof(formattedTime), "%m/%d/%Y, %I:%M:%S %p", localTime);
 
     return std::string(formattedTime);  
+}
+
+void displayConfig() {
+    std::cout << "\nLoaded Configuration:" << std::endl;
+    std::cout << "num-cpu: " << num_cpu << std::endl;
+    std::cout << "scheduler: " << scheduler << std::endl;
+	std::cout << "quantum-cycles: " << quantum_cycles << std::endl;
+    std::cout << "batch-process-freq: " << batch_process_freq << std::endl;
+    std::cout << "min-ins: " << min_ins << std::endl;
+    std::cout << "max-ins: " << max_ins << std::endl;
+    std::cout << "delays-per-exec: " << delays_per_exec << std::endl;
+    std::cout << std::endl;
+}
+
+bool initializeConfig() {
+    std::ifstream configFile("config.txt");
+    if (!configFile) {
+        std::cerr << "Error: Could not open config.txt" << std::endl;
+        return false;
+    }
+    std::string line;
+    while (std::getline(configFile, line)) {
+        std::istringstream iss(line);
+        std::string param;
+        iss >> param;
+
+        if (param == "num-cpu") {
+            iss >> num_cpu;
+            if (num_cpu < 1 || num_cpu > 128) {
+                std::cerr << "Error: num-cpu must be between 1 and 128" << std::endl;
+                return false;
+            }
+        } else if (param == "scheduler") {
+            iss >> scheduler;
+            if (scheduler != "fcfs" && scheduler != "rr") {
+                std::cerr << "Error: Invalid scheduler. Must be 'fcfs' or 'rr'" << std::endl;
+                return false;
+            }
+        } else if (param == "quantum-cycles") {
+            iss >> quantum_cycles;
+            if (quantum_cycles < 1 || quantum_cycles > 4294967296) {
+                std::cerr << "Error: quantum-cycles must be between 1 and 2^32 (4294967296)" << std::endl;
+                return false;
+            }
+        } else if (param == "batch-process-freq") {
+            iss >> batch_process_freq;
+            if (batch_process_freq < 1 || batch_process_freq > 4294967296) {
+                std::cerr << "Error: batch-process-freq must be between 1 and 2^32 (4294967296)" << std::endl;
+                return false;
+            }
+        } else if (param == "min-ins") {
+            iss >> min_ins;
+            if (min_ins < 1 || min_ins > 4294967296) {
+                std::cerr << "Error: min-ins must be between 1 and 2^32 (4294967296)" << std::endl;
+                return false;
+            }
+        } else if (param == "max-ins") {
+            iss >> max_ins;
+            if (max_ins < 1 || max_ins > 4294967296) {
+                std::cerr << "Error: max-ins must be between 1 and 2^32 (4294967296)" << std::endl;
+                return false;
+            }
+        } else if (param == "delays-per-exec") {
+            iss >> delays_per_exec;
+            if (delays_per_exec < 0 || delays_per_exec > 4294967296) {
+                std::cerr << "Error: delays-per-exec must be between 0 and 2^32 (4294967296)" << std::endl;
+                return false;
+            }
+        } else {
+            std::cerr << "Error: Unknown parameter in config file" << std::endl;
+            return false;
+        }
+    }
+
+    configFile.close();
+    return true;
 }
 
 class Screen {
@@ -109,12 +195,18 @@ public:
 };
 
 int interpreter(std::string command, ScreenManager& manager){
+
 	int isExit = 0;
     if (command == "clear") {
         system("cls"); 
         banner();
     } else if (command == "initialize") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
+        if (initializeConfig()) {
+            std::cout << "Initialization successful!" << std::endl;
+            displayConfig();  
+        } else {
+            std::cerr << "Initialization failed!" << std::endl;
+        }
     } else if (command.rfind("screen -s", 0) == 0) {
         std::istringstream iss(command);
         std::string cmd, dash_s, screenName;
@@ -155,6 +247,8 @@ int main() {
     int isExit =0;
     ScreenManager manager;
    	std::string command;
+   	bool initialized = false;
+
 	do {
     	std::cout << "Enter a command: ";
     	std::getline(std::cin, command);
