@@ -117,6 +117,10 @@ public:
     std::string getEndExecutionTime() const {
         return endExecutionTime; 
     }
+    
+	int getTotalInstructions() const {
+        return totalInstructions; 
+    }
 };
 
 class RRScheduler {
@@ -247,11 +251,11 @@ public:
                               << process->getStartExecutionTime() << ") " 
                               << "Core: " << coreId << " " 
                               << process->getExecutedInstructions() << "/" 
-                              << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+                              << process->getTotalInstructions() << "\n";
                 } else {
                     std::cout << process->getName() << " NOT STARTED " 
                               << process->getExecutedInstructions() << "/" 
-                              << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+                              << process->getTotalInstructions() << "\n";
                 }
             }
         }
@@ -287,8 +291,8 @@ public:
 
 // Main function 
 int main() {
-    RRScheduler scheduler(4,20); 
-    	for (int i = 0; i < 10; ++i) { 
+    RRScheduler scheduler(5,20); 
+    	for (int i = 0; i < 14; ++i) { 
 	    int numInstructions = 100; 
 	    auto process = std::make_shared<Process>("Process " + std::to_string(i + 1), i + 1, numInstructions);
 	    scheduler.addProcess(process);  
