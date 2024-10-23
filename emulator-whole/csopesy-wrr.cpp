@@ -27,8 +27,10 @@ int batch_process_freq;
 int min_ins;
 int max_ins;
 int delays_per_exec;
+int processCount=0;
 
 std::atomic<bool> schedulerRunning(true);
+std::atomic<bool> processGenerationActive(false); 
 
 void banner(){
 	std::cout <<"\n";
@@ -479,15 +481,15 @@ bool initialize_configs(std::string command){
             std::cout << "Initialization successful!" << std::endl;
             displayConfig();  
             // Random number generator setup
-    		std::random_device rd;  // Obtain a random number from hardware
-    		std::mt19937 eng(rd()); // Seed the generator
-    		std::uniform_int_distribution<> distr(min_ins, max_ins); // Define the range
-            RRScheduler scheduler(num_cpu,quantum_cycles); 
-	    	for (int i = 0; i < 10; ++i) { 
-		    	int numInstructions = distr(eng);
-				auto process = std::make_shared<Process>("Process " + std::to_string(i + 1), i + 1, numInstructions);
-			    scheduler.addProcess(process);  
-			}
+    		//std::random_device rd;  // Obtain a random number from hardware
+    		//std::mt19937 eng(rd()); // Seed the generator
+    		//std::uniform_int_distribution<> distr(min_ins, max_ins); // Define the range
+            //RRScheduler scheduler(num_cpu,quantum_cycles); 
+	    	//for (int i = 0; i < 10; ++i) { 
+		    //	int numInstructions = distr(eng);
+			//	auto process = std::make_shared<Process>("Process " + std::to_string(i + 1), i + 1, numInstructions);
+			//   scheduler.addProcess(process);  
+			//}
 			//std::thread commandThread([&scheduler]() { scheduler.handleCommands(); }); 
     		//scheduler.runScheduler();
             initialized = true;
@@ -501,9 +503,25 @@ bool initialize_configs(std::string command){
 	return initialized;
 }
 
+void generateProcesses(RRScheduler& scheduler, int frequency) {
+    std::random_device rd;
+    std::mt19937 eng(rd());
+    std::uniform_int_distribution<> distr(min_ins, max_ins);
+
+    int processCount = 1;
+    while (processGenerationActive) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(frequency));
+        int numInstructions = distr(eng);
+        auto process = std::make_shared<Process>("Process " + std::to_string(processCount), processCount, numInstructions);
+        scheduler.addProcess(process);
+        processCount++;
+
+        std::cout << "Generated new process: " << process->getName() << " with " << numInstructions << " instructions.\n";
+    }
+}
 
 
-int interpreter(std::string command, ScreenManager& manager,auto& scheduler){
+int interpreter(std::string command, ScreenManager& manager,auto& scheduler,std::thread& processGenerationThread){
 	
 	int isExit = 0;
     if (command == "clear") {
@@ -537,9 +555,19 @@ int interpreter(std::string command, ScreenManager& manager,auto& scheduler){
     } else if (command.rfind("screen", 0) == 0) {
     	std::cout << "Syntax: screen -s <name>" << std::endl;
 	} else if (command == "scheduler-test") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
+        std::cout << "Scheduler test started.\n";
+        if (!processGenerationActive) {
+            processGenerationActive = true;
+            processGenerationThread = std::thread(generateProcesses, std::ref(scheduler), batch_process_freq);
+        }
     } else if (command == "scheduler-stop") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
+        std::cout << "Stopping scheduler test.\n";
+
+        // Stop the process generation
+        processGenerationActive = false;
+        if (processGenerationThread.joinable()) {
+            processGenerationThread.join();
+        }
     } else if (command == "report-util") {
         std::cout << command << " command recognized. Doing something." << std::endl;
     } else if (command == "non-blocking") {
@@ -547,6 +575,8 @@ int interpreter(std::string command, ScreenManager& manager,auto& scheduler){
         non_blocking();
     } else if (command == "exit") {
         isExit=1;
+        schedulerRunning = false;
+        processGenerationActive = false;
     } else {
         std::cout << command << " is not recognized!" << std::endl;
     }
@@ -560,11 +590,11 @@ void runScheduler(RRScheduler& scheduler) {
     }
 }
 
-void runInterpreter(RRScheduler& scheduler, ScreenManager& manager) {
+void runInterpreter(RRScheduler& scheduler, ScreenManager& manager,std::thread& processGenerationThread) {
     std::string command;
     while (true) {
         std::getline(std::cin, command);
-        if (interpreter(command, manager, scheduler)) {
+        if (interpreter(command, manager, scheduler,processGenerationThread)) {
             break;
         }
     }
@@ -587,7 +617,8 @@ int main() {
 
     // After initialization, create the scheduler
     RRScheduler scheduler(num_cpu, quantum_cycles);
-
+    // And the thread for process generation
+	std::thread processGenerationThread;
     // Start the scheduler in a separate thread
     std::thread schedulerThread([&scheduler]() {
         while (schedulerRunning) {
@@ -597,7 +628,7 @@ int main() {
     do {
         std::cout << "Enter a command: ";
         std::getline(std::cin, command);
-        isExit = interpreter(command, manager, scheduler);
+        isExit = interpreter(command, manager, scheduler,processGenerationThread);
         if (isExit == 1) {
             schedulerRunning = false;
         }
