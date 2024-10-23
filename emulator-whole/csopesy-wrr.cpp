@@ -143,72 +143,6 @@ bool initializeConfig() {
     return true;
 }
 
-class Screen {
-private:
-    std::string borderStyle;  
-    std::string name;         
-    std::string creationDate; 
-
-public:
-    Screen(const std::string &borderStyle, const std::string &name)
-        : borderStyle(borderStyle), name(name), creationDate(timestamp()) {}
-
-    void create() const {
-        std::string content = " Screen Name: " + name + " \n Date Created: " + creationDate;
-        size_t width = std::max(static_cast<size_t>(content.length()), static_cast<size_t>(2));
-        //borders
-        std::cout << std::string(width, borderStyle[0]) << std::endl;
-        std::cout << content << std::endl;
-        std::cout << std::string(width, borderStyle[0]) << std::endl;
-    }
-    std::string getName() const {
-        return name;
-    }
-};
-
-class ScreenManager {
-private:
-    std::vector<Screen> screens; 
-    std::string getBorderStyle(size_t index) const {
-        switch (index % 5) { 
-            case 0: return "#";
-            case 1: return "*";
-            case 2: return "~";
-            case 3: return "x";
-            case 4: return "+";
-            default: return "#"; 
-        }
-    }
-
-public:
-    
-    void addScreen(const std::string &name) {
-        std::string borderStyle = getBorderStyle(screens.size()); 
-        Screen newScreen(borderStyle, name); 
-        screens.push_back(newScreen); 
-    }
-
-    void callScreen(const std::string &name) const {
-        for (size_t i = 0; i < screens.size(); ++i){ 
-	            if (screens[i].getName() == name) { 
-                screens[i].create(); 
-                return;
-            }
-        }
-        std::cout << "Screen named \"" << name << "\" not found." << std::endl; 
-    }
-    
-    bool screenExists(const std::string &name) const {
-        for (size_t i = 0; i < screens.size(); ++i) {
-            if (screens[i].getName() == name) {
-                return true; 
-            }
-        }
-        return false;
-    }
-    
-    
-};
 
 //Process class for use of FCFS and RR
 class Process {
@@ -302,6 +236,11 @@ public:
         std::lock_guard<std::mutex> lock(mtx); 
         return remainingInstructions == 0;
     }
+    
+    // Gets Id
+    int getId() const {
+        return id;
+    }
 
     // Get the name of the process
     std::string getName() const {
@@ -322,6 +261,7 @@ public:
         return totalInstructions; 
     }
 };
+
 
 class RRScheduler {
 private:
@@ -472,6 +412,91 @@ public:
 
         std::cout << "--------------------------------------------------\n";
     }
+    
+	Process* findProcessByName(const std::string& name) {
+        for (const auto& process : allProcesses) { 
+            if (process->getName() == name) {
+                return process.get();
+            }
+        }
+        return nullptr; // Not found
+    }
+};
+
+class Screen {
+private:
+    std::string borderStyle;  
+    std::string name;         
+    std::string creationDate; 
+    Process* process; // Pointer to the process associated with the screen
+
+public:
+    Screen(const std::string &borderStyle, const std::string &name, Process* proc)
+        : borderStyle(borderStyle), name(name), creationDate(timestamp()), process(proc) {}
+
+    void create() const {
+        std::string content = " Screen Name: " + name + "\n Date Created: " + creationDate;
+            content += "\n Process ID: " + std::to_string(process->getId())
+                       + "\n Total Instructions: " + std::to_string(process->getTotalInstructions())
+                       + "\n Executed Instructions: " + std::to_string(process->getExecutedInstructions())
+                       + "\n Start Time: " + process->getStartExecutionTime()
+                       + "\n End Time: " + process->getEndExecutionTime();
+
+        size_t width = 40;
+        // Borders
+        std::cout << std::string(width, borderStyle[0]) << std::endl;
+        std::cout << content << std::endl;
+        std::cout << std::string(width, borderStyle[0]) << std::endl;
+    }
+
+    std::string getName() const {
+        return name;
+    }
+};
+
+
+class ScreenManager {
+private:
+    std::vector<Screen> screens; 
+    std::string getBorderStyle(size_t index) const {
+        switch (index % 5) { 
+            case 0: return "#";
+            case 1: return "*";
+            case 2: return "~";
+            case 3: return "x";
+            case 4: return "+";
+            default: return "#"; 
+        }
+    }
+
+public:
+    
+    void addScreen(const std::string &name,Process* process) {
+        std::string borderStyle = getBorderStyle(screens.size()); 
+        Screen newScreen(borderStyle, name, process); 
+        screens.push_back(newScreen); 
+    }
+
+    void callScreen(const std::string &name) const {
+        for (size_t i = 0; i < screens.size(); ++i){ 
+	            if (screens[i].getName() == name) { 
+                screens[i].create(); 
+                return;
+            }
+        }
+        std::cout << "Screen named \"" << name << "\" not found." << std::endl; 
+    }
+    
+    bool screenExists(const std::string &name) const {
+        for (size_t i = 0; i < screens.size(); ++i) {
+            if (screens[i].getName() == name) {
+                return true; 
+            }
+        }
+        return false;
+    }
+    
+    
 };
 
 bool initialize_configs(std::string command){
@@ -480,18 +505,6 @@ bool initialize_configs(std::string command){
         if (initializeConfig()) {
             std::cout << "Initialization successful!" << std::endl;
             displayConfig();  
-            // Random number generator setup
-    		//std::random_device rd;  // Obtain a random number from hardware
-    		//std::mt19937 eng(rd()); // Seed the generator
-    		//std::uniform_int_distribution<> distr(min_ins, max_ins); // Define the range
-            //RRScheduler scheduler(num_cpu,quantum_cycles); 
-	    	//for (int i = 0; i < 10; ++i) { 
-		    //	int numInstructions = distr(eng);
-			//	auto process = std::make_shared<Process>("Process " + std::to_string(i + 1), i + 1, numInstructions);
-			//   scheduler.addProcess(process);  
-			//}
-			//std::thread commandThread([&scheduler]() { scheduler.handleCommands(); }); 
-    		//scheduler.runScheduler();
             initialized = true;
         } else {
             std::cerr << "Initialization failed!" << std::endl;
@@ -516,7 +529,7 @@ void generateProcesses(RRScheduler& scheduler) {
         scheduler.addProcess(process);
         processCount++;
 
-        std::cout << "Generated new process: " << process->getName() << " with " << numInstructions << " instructions.\n";
+        //std::cout << "Generated new process: " << process->getName() << " with " << numInstructions << " instructions.\n";
     }
 }
 
@@ -537,17 +550,21 @@ int interpreter(std::string command, ScreenManager& manager,auto& scheduler,std:
     } else if (command == "screen -ls") {
        		scheduler.printProcessStatus();
     } else if (command.rfind("screen -s", 0) == 0) {
-        std::istringstream iss(command);
-        std::string cmd, dash_s, screenName;
-        iss >> cmd >> dash_s >> screenName;
+        size_t startPos = command.find("-s") + 3;  // +3 to skip "-s " part
+    		std::string screenName = command.substr(startPos);  
         if (!screenName.empty()) {
-            if (manager.screenExists(screenName)) {
-                std::cout << "Screen already exists. Opening " << screenName << std::endl;
-                manager.callScreen(screenName);
+        	Process* proc = scheduler.findProcessByName(screenName);
+        	if (proc) {
+		        if (manager.screenExists(screenName)) {
+		            std::cout << "Screen already exists. Opening " << screenName << std::endl;
+		            manager.callScreen(screenName);
+		        } else {
+		            std::cout << "Creating new screen: " << screenName << std::endl;
+		            manager.addScreen(screenName, proc);
+	                manager.callScreen(screenName);
+		            }
             } else {
-                std::cout << "Creating new screen: " << screenName << std::endl;
-                manager.addScreen(screenName);
-                manager.callScreen(screenName);
+                std::cout << "No process found with the name: " << screenName << std::endl;
             }
         } else {
             std::cout << "Error: No screen name provided!" << std::endl;
