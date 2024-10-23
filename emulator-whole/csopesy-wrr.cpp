@@ -18,6 +18,7 @@
 #include <queue> 
 #include <algorithm>
 #include <random>
+#include <atomic>
 
 int num_cpu;
 std::string scheduler;
@@ -26,6 +27,8 @@ int batch_process_freq;
 int min_ins;
 int max_ins;
 int delays_per_exec;
+
+std::atomic<bool> schedulerRunning(true);
 
 void banner(){
 	std::cout <<"\n";
@@ -467,19 +470,6 @@ public:
 
         std::cout << "--------------------------------------------------\n";
     }
-    void handleCommands() {
-        std::string command;
-        while (true) {
-            std::cout << "Enter Command: ";
-            std::getline(std::cin, command);
-            if (command == "screen -ls") {
-                printProcessStatus();
-            } else if (command == "exit") {
-                exit(0);
-            }
-        }
-    }
-
 };
 
 bool initialize_configs(std::string command){
@@ -498,8 +488,8 @@ bool initialize_configs(std::string command){
 				auto process = std::make_shared<Process>("Process " + std::to_string(i + 1), i + 1, numInstructions);
 			    scheduler.addProcess(process);  
 			}
-			std::thread commandThread([&scheduler]() { scheduler.handleCommands(); }); 
-    		scheduler.runScheduler();
+			//std::thread commandThread([&scheduler]() { scheduler.handleCommands(); }); 
+    		//scheduler.runScheduler();
             initialized = true;
         } else {
             std::cerr << "Initialization failed!" << std::endl;
@@ -513,8 +503,8 @@ bool initialize_configs(std::string command){
 
 
 
-int interpreter(std::string command, ScreenManager& manager){
-
+int interpreter(std::string command, ScreenManager& manager,auto& scheduler){
+	
 	int isExit = 0;
     if (command == "clear") {
         system("cls"); 
@@ -527,7 +517,7 @@ int interpreter(std::string command, ScreenManager& manager){
             std::cerr << "Initialization failed!" << std::endl;
         }
     } else if (command == "screen -ls") {
-       std::cout << command << " command recognized. Doing something." << std::endl;
+       		scheduler.printProcessStatus();
     } else if (command.rfind("screen -s", 0) == 0) {
         std::istringstream iss(command);
         std::string cmd, dash_s, screenName;
@@ -563,22 +553,63 @@ int interpreter(std::string command, ScreenManager& manager){
 	return isExit;
 }
 
-int main() {
-    banner();
-    int isExit =0;
-    ScreenManager manager;
-   	std::string command;
-   	bool initialized = false;
-	do {
-    	std::cout << "Enter a command: ";
-    	std::getline(std::cin, command);
-    	initialized = initialize_configs(command);
-	} while (initialized == false);
-	do {
-    	std::cout << "Enter a command: ";
-    	std::getline(std::cin, command);
-    	isExit = interpreter(command, manager);
-	} while (isExit!=1);
-
-    exit (0);
+void runScheduler(RRScheduler& scheduler) {
+    // While the schedulerRunning flag is true, run the scheduler
+    while (schedulerRunning) {
+        scheduler.runScheduler();  
+    }
 }
+
+void runInterpreter(RRScheduler& scheduler, ScreenManager& manager) {
+    std::string command;
+    while (true) {
+        std::getline(std::cin, command);
+        if (interpreter(command, manager, scheduler)) {
+            break;
+        }
+    }
+}
+
+int main() {
+    banner(); 
+    
+    int isExit = 0;
+    ScreenManager manager; 
+    std::string command;
+    bool initialized = false;
+
+    // Initialize configurations before starting the scheduler and interpreter
+    do {
+        std::cout << "Enter a command: ";
+        std::getline(std::cin, command);
+        initialized = initialize_configs(command);  
+    } while (!initialized);
+
+    // After initialization, create the scheduler
+    RRScheduler scheduler(num_cpu, quantum_cycles);
+
+    // Start the scheduler in a separate thread
+    std::thread schedulerThread([&scheduler]() {
+        while (schedulerRunning) {
+            scheduler.runScheduler();
+        }
+    });
+    do {
+        std::cout << "Enter a command: ";
+        std::getline(std::cin, command);
+        isExit = interpreter(command, manager, scheduler);
+        if (isExit == 1) {
+            schedulerRunning = false;
+        }
+
+    } while (isExit != 1);
+
+
+    if (schedulerThread.joinable()) {
+        schedulerThread.join();
+    }
+
+    return 0; 
+}
+
+
