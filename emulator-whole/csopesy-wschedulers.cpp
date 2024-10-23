@@ -645,14 +645,13 @@ void generateProcesses(Scheduler& scheduler) {
     std::random_device rd;
     std::mt19937 eng(rd());
     std::uniform_int_distribution<> distr(min_ins, max_ins);
-
-    int processCount = 1;
+    processCount++;
     while (processGenerationActive) {
         std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq));
         int numInstructions = distr(eng);
         auto process = std::make_shared<Process>("Process " + std::to_string(processCount), processCount, numInstructions);
         scheduler.addProcess(process);
-        processCount++;
+        
 
         //std::cout << "Generated new process: " << process->getName() << " with " << numInstructions << " instructions.\n";
     }
