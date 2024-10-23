@@ -503,14 +503,14 @@ bool initialize_configs(std::string command){
 	return initialized;
 }
 
-void generateProcesses(RRScheduler& scheduler, int frequency) {
+void generateProcesses(RRScheduler& scheduler) {
     std::random_device rd;
     std::mt19937 eng(rd());
     std::uniform_int_distribution<> distr(min_ins, max_ins);
 
     int processCount = 1;
     while (processGenerationActive) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(frequency));
+        std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq));
         int numInstructions = distr(eng);
         auto process = std::make_shared<Process>("Process " + std::to_string(processCount), processCount, numInstructions);
         scheduler.addProcess(process);
@@ -558,7 +558,7 @@ int interpreter(std::string command, ScreenManager& manager,auto& scheduler,std:
         std::cout << "Scheduler test started.\n";
         if (!processGenerationActive) {
             processGenerationActive = true;
-            processGenerationThread = std::thread(generateProcesses, std::ref(scheduler), batch_process_freq);
+            processGenerationThread = std::thread(generateProcesses, std::ref(scheduler));
         }
     } else if (command == "scheduler-stop") {
         std::cout << "Stopping scheduler test.\n";
