@@ -21,7 +21,7 @@
 #include <atomic>
 
 int num_cpu;
-std::string scheduler;
+std::string schedulerType;
 int quantum_cycles;
 int batch_process_freq;
 int min_ins;
@@ -70,7 +70,7 @@ std::string timestamp() {
 void displayConfig() {
     std::cout << "\nLoaded Configuration:" << std::endl;
     std::cout << "num-cpu: " << num_cpu << std::endl;
-    std::cout << "scheduler: " << scheduler << std::endl;
+    std::cout << "scheduler: " << schedulerType << std::endl;
 	std::cout << "quantum-cycles: " << quantum_cycles << std::endl;
     std::cout << "batch-process-freq: " << batch_process_freq << std::endl;
     std::cout << "min-ins: " << min_ins << std::endl;
@@ -98,8 +98,8 @@ bool initializeConfig() {
                 return false;
             }
         } else if (param == "scheduler") {
-            iss >> scheduler;
-            if (scheduler != "fcfs" && scheduler != "rr") {
+            iss >> schedulerType;
+            if (schedulerType != "fcfs" && schedulerType != "rr") {
                 std::cerr << "Error: Invalid scheduler. Must be 'fcfs' or 'rr'" << std::endl;
                 return false;
             }
@@ -262,8 +262,133 @@ public:
     }
 };
 
+class Scheduler {
+public:
+    virtual ~Scheduler() = default;
+    virtual void addProcess(const std::shared_ptr<Process>& process) = 0;
+    virtual void runScheduler() = 0;
+    virtual void printProcessStatus() = 0;
+    virtual Process* findProcessByName(const std::string& name) = 0;
+};
 
-class RRScheduler {
+class FCFSScheduler : public Scheduler {
+private:
+    int numCores;
+    std::vector<std::vector<std::shared_ptr<Process>>> processQueues;  
+    std::vector<std::shared_ptr<Process>> allProcesses; 
+    std::queue<std::shared_ptr<Process>> finishedProcesses; 
+    std::mutex mtx;  
+
+public:
+    FCFSScheduler(int cores) : numCores(cores), processQueues(cores) {}
+
+    // Add a process to the scheduler
+    void addProcess(const std::shared_ptr<Process>& process) {
+            std::lock_guard<std::mutex> lock(mtx); 
+            allProcesses.push_back(process); 
+			int core = (allProcesses.size()-1)%numCores; 
+            processQueues[core].push_back(process); 
+    }
+
+    // Function for a single core to execute its processes concurrently
+    void runCore(int core) {
+        while (true) {
+            std::shared_ptr<Process> currentProcess = nullptr;
+            {
+                std::lock_guard<std::mutex> lock(mtx);  
+                if (processQueues[core].empty()) break; 
+                currentProcess = processQueues[core].front();  
+            }
+
+            if (currentProcess && !currentProcess->hasFinished()) {
+                currentProcess->executeInstruction(core);  
+            }
+
+            // If the process is finished, remove it from the queue
+            if (currentProcess && currentProcess->hasFinished()) {
+                {
+                    std::lock_guard<std::mutex> lock(mtx);  
+                    currentProcess->finalize(); 
+                    finishedProcesses.push(currentProcess); 
+                    processQueues[core].erase(processQueues[core].begin());  
+                }
+            }
+        }
+    }
+
+    // Run the scheduler concurrently across all cores
+    void runScheduler() override{
+        std::vector<std::thread> coreThreads;
+
+        for (int core = 0; core < numCores; ++core) {
+            coreThreads.push_back(std::thread([this, core]() { runCore(core); }));  
+        }
+
+        for (auto& thread : coreThreads) {
+            if (thread.joinable()) {
+                thread.join();
+            }
+        }
+    }
+
+    // Function to print the status of processes
+    void printProcessStatus() override{
+    std::lock_guard<std::mutex> lock(mtx);  
+    std::cout << "--------------------------------------------------\n";
+    std::cout << "Running Processes:\n\n";
+
+    // Iterate through all processes to print Running Processes
+    for (const auto& process : allProcesses){
+        if (process && !process->hasFinished()) { 
+            int coreId = -1; 
+            for (int core = 0; core < numCores; ++core) {
+                if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
+                    coreId = core; 
+                    break;
+                }
+            }
+
+            // Print core ID only if the process has started executing
+            if (!process->getStartExecutionTime().empty()) {
+                std::cout << process->getName() << " (" 
+                          << process->getStartExecutionTime() << ") " 
+                          << "Core: " << coreId << " " 
+                          << process->getExecutedInstructions() << "/" 
+                          << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+            } else {
+                std::cout << process->getName() << " NOT STARTED " 
+                          << process->getExecutedInstructions() << "/" 
+                          << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+            }
+        }
+    }
+
+    std::cout << "\nFinished Processes:\n\n";
+    
+    for (const auto& process : allProcesses) {
+        if (process && process->hasFinished()) { 
+            std::cout << process->getName() << " (" 
+                      << process->getEndExecutionTime() << ") "
+                      << "Finished " << process->getExecutedInstructions() << "/" 
+                      << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+        }
+    }
+
+    std::cout << "--------------------------------------------------\n";
+    }
+    
+    Process* findProcessByName(const std::string& name) override{
+        for (const auto& process : allProcesses) { 
+            if (process->getName() == name) {
+                return process.get();
+            }
+        }
+        return nullptr; // Not found
+    }
+
+};
+
+class RRScheduler : public Scheduler{
 private:
     int numCores;
     int quantumTime;  // Time quantum for round-robin scheduling
@@ -348,7 +473,7 @@ public:
     }
 
     // Run the scheduler concurrently across all cores
-    void runScheduler() {
+    void runScheduler() override{
         std::vector<std::thread> coreThreads;
         
 
@@ -365,7 +490,7 @@ public:
     }
 
     // Function to print the status of processes
-    void printProcessStatus() {
+    void printProcessStatus() override{
         std::lock_guard<std::mutex> lock(mtx);
         std::cout << "--------------------------------------------------\n";
         std::cout << "Running Processes:\n\n";
@@ -413,7 +538,7 @@ public:
         std::cout << "--------------------------------------------------\n";
     }
     
-	Process* findProcessByName(const std::string& name) {
+	Process* findProcessByName(const std::string& name) override{
         for (const auto& process : allProcesses) { 
             if (process->getName() == name) {
                 return process.get();
@@ -516,7 +641,7 @@ bool initialize_configs(std::string command){
 	return initialized;
 }
 
-void generateProcesses(RRScheduler& scheduler) {
+void generateProcesses(Scheduler& scheduler) {
     std::random_device rd;
     std::mt19937 eng(rd());
     std::uniform_int_distribution<> distr(min_ins, max_ins);
@@ -534,7 +659,7 @@ void generateProcesses(RRScheduler& scheduler) {
 }
 
 
-int interpreter(std::string command, ScreenManager& manager,auto& scheduler,std::thread& processGenerationThread){
+int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler,std::thread& processGenerationThread){
 	
 	int isExit = 0;
     if (command == "clear") {
@@ -600,14 +725,14 @@ int interpreter(std::string command, ScreenManager& manager,auto& scheduler,std:
 	return isExit;
 }
 
-void runScheduler(RRScheduler& scheduler) {
+void runScheduler(Scheduler& scheduler) {
     // While the schedulerRunning flag is true, run the scheduler
     while (schedulerRunning) {
         scheduler.runScheduler();  
     }
 }
 
-void runInterpreter(RRScheduler& scheduler, ScreenManager& manager,std::thread& processGenerationThread) {
+void runInterpreter(Scheduler& scheduler, ScreenManager& manager,std::thread& processGenerationThread) {
     std::string command;
     while (true) {
         std::getline(std::cin, command);
@@ -624,8 +749,8 @@ int main() {
     ScreenManager manager; 
     std::string command;
     bool initialized = false;
-
-    // Initialize configurations before starting the scheduler and interpreter
+    std::unique_ptr<Scheduler> scheduler;
+	std::thread processGenerationThread;
     do {
         std::cout << "Enter a command: ";
         std::getline(std::cin, command);
@@ -633,25 +758,31 @@ int main() {
     } while (!initialized);
 
     // After initialization, create the scheduler
-    RRScheduler scheduler(num_cpu, quantum_cycles);
-    // And the thread for process generation
-	std::thread processGenerationThread;
+    if (schedulerType == "rr") {
+        scheduler = std::make_unique<RRScheduler>(num_cpu, quantum_cycles);
+    } else if (schedulerType == "fcfs") {
+        scheduler = std::make_unique<FCFSScheduler>(num_cpu);
+    } else {
+        std::cerr << "Invalid scheduler type specified." << std::endl;
+        return 1; 
+    }
+
     // Start the scheduler in a separate thread
     std::thread schedulerThread([&scheduler]() {
         while (schedulerRunning) {
-            scheduler.runScheduler();
+            scheduler->runScheduler(); 
         }
     });
+
     do {
         std::cout << "Enter a command: ";
         std::getline(std::cin, command);
-        isExit = interpreter(command, manager, scheduler,processGenerationThread);
+        isExit = interpreter(command, manager, *scheduler, processGenerationThread);
         if (isExit == 1) {
-            schedulerRunning = false;
+            schedulerRunning = false; 
         }
 
     } while (isExit != 1);
-
 
     if (schedulerThread.joinable()) {
         schedulerThread.join();
@@ -659,5 +790,4 @@ int main() {
 
     return 0; 
 }
-
 
