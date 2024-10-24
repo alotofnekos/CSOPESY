@@ -170,20 +170,14 @@ private:
     int executedInstructions; 
     std::string startExecutionTime; 
     std::string endExecutionTime; 
-    std::ofstream logFile; 
     mutable std::mutex mtx; 
 
 public:
     Process(const std::string& processName, int processId, int numInstructions)
         : name(processName), id(processId), totalInstructions(numInstructions), remainingInstructions(numInstructions), executedInstructions(0) {
-        //logFile.open("Process_" + std::to_string(processId) + ".txt"); // Open file for logging
-        //logFile << "Process Name: " << name << "\nLogs:\n\n";
     }
 
     ~Process() {
-        //if (logFile.is_open()) {
-       //     logFile.close(); 
-       // }
     }
 
     // Execute one instruction of the process
@@ -197,18 +191,9 @@ public:
                 std::strftime(buffer, sizeof(buffer), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
                 startExecutionTime = buffer; // Store the execution start time
             }
-
-            // Simulate processing time
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-            //auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-            //char timestamp[100];
-            //std::strftime(timestamp, sizeof(timestamp), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
-
-            //logFile << "(" << timestamp << ") Core:" << coreId << " \"Hello world from " << name << "!\"\n"; // Log to file
-            //logFile.flush(); 
             remainingInstructions--;
-            executedInstructions++; // Increment executed instructions
+            executedInstructions++; 
         } 
     }
 
