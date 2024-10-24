@@ -191,7 +191,13 @@ public:
                 std::strftime(buffer, sizeof(buffer), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
                 startExecutionTime = buffer; // Store the execution start time
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            
+            if (delays_per_exec == 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            } else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100 * delays_per_exec));
+            }
+            
             remainingInstructions--;
             executedInstructions++; 
         } 
