@@ -694,7 +694,7 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
     		std::string screenName = command.substr(startPos);  
         if (!screenName.empty()) {
         	Process* proc = scheduler.findProcessByName(screenName);
-        	if (proc) {
+        	if (proc&&!(proc->hasFinished())) {
         		system("cls"); 
 		        if (manager.screenExists(screenName)) {
 		            std::cout << "Screen already exists. Opening " << screenName << std::endl;
@@ -723,7 +723,7 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
 	            	}
             	}
             } else {
-                std::cout << "No process found with the name: " << screenName << std::endl;
+                std::cout << "No process found with the name: " << screenName << ", or it might be finished already!"<<std::endl;
             }
         } else {
             std::cout << "Error: No screen name provided!" << std::endl;
