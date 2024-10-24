@@ -780,6 +780,7 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
         if (!screenName.empty()) {
         	Process* proc = scheduler.findProcessByName(screenName); 
         	if (manager.screenExists(screenName)&&!(proc->hasFinished())) {
+        			system("cls");
 		            std::cout << "Opening " << screenName << std::endl;
 		            std::string processCommand;
 	            	bool exitScreen = false;
