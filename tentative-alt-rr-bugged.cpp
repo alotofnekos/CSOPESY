@@ -145,7 +145,7 @@ public:
         
         processQueues[nextCore].push_back(process); 
         allProcesses.push_back(process);  
-        nextCore = (nextCore + 1) % numCores;  t
+        nextCore = (nextCore + 1) % numCores;  
         totalProcess++;
     }
 
