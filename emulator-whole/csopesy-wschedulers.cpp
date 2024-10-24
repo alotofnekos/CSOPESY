@@ -819,6 +819,7 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
         }
     } else if (command == "report-util") {
         scheduler.printProcessStatus(true);
+        std::cout << "Report generated at csopesylog.txt in the same folder as the emulator!" << std::endl;
     } else if (command == "non-blocking") {
         std::cout << command << " command recognized. Doing something." << std::endl;
         non_blocking();
