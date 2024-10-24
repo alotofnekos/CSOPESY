@@ -176,10 +176,10 @@ public:
         if (remainingInstructions > 0) {
             // Set the start execution time if it hasn't been set yet
             if (startExecutionTime.empty()) {
-                //auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                //char buffer[100];
-                //std::strftime(buffer, sizeof(buffer), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
-                //startExecutionTime = buffer; // Store the execution start time
+                auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                char buffer[100];
+                std::strftime(buffer, sizeof(buffer), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
+                startExecutionTime = buffer; // Store the execution start time
             }
 
             // Simulate processing time
@@ -267,7 +267,7 @@ public:
     virtual ~Scheduler() = default;
     virtual void addProcess(const std::shared_ptr<Process>& process) = 0;
     virtual void runScheduler() = 0;
-    virtual void printProcessStatus() = 0;
+	virtual void printProcessStatus(const bool toFile) =0;
     virtual Process* findProcessByName(const std::string& name) = 0;
 };
 
@@ -330,52 +330,65 @@ public:
             }
         }
     }
-
-    // Function to print the status of processes
-    void printProcessStatus() override{
-    std::lock_guard<std::mutex> lock(mtx);  
-    std::cout << "--------------------------------------------------\n";
-    std::cout << "Running Processes:\n\n";
-
-    // Iterate through all processes to print Running Processes
-    for (const auto& process : allProcesses){
-        if (process && !process->hasFinished()) { 
-            int coreId = -1; 
-            for (int core = 0; core < numCores; ++core) {
-                if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
-                    coreId = core; 
-                    break;
-                }
-            }
-
-            // Print core ID only if the process has started executing
-            if (!process->getStartExecutionTime().empty()) {
-                std::cout << process->getName() << " (" 
-                          << process->getStartExecutionTime() << ") " 
-                          << "Core: " << coreId << " " 
-                          << process->getExecutedInstructions() << "/" 
-                          << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
-            } else {
-                std::cout << process->getName() << " NOT STARTED " 
-                          << process->getExecutedInstructions() << "/" 
-                          << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
-            }
-        }
-    }
-
-    std::cout << "\nFinished Processes:\n\n";
     
-    for (const auto& process : allProcesses) {
-        if (process && process->hasFinished()) { 
-            std::cout << process->getName() << " (" 
-                      << process->getEndExecutionTime() << ") "
-                      << "Finished " << process->getExecutedInstructions() << "/" 
-                      << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
-        }
-    }
-
-    std::cout << "--------------------------------------------------\n";
-    }
+	void printProcessStatus(bool toFile) override{
+	    std::lock_guard<std::mutex> lock(mtx);
+	    
+	    std::ofstream logFile;
+	    if (toFile) {
+	        logFile.open("csopesylog.txt", std::ios::app);  // Open in append mode
+	        if (!logFile.is_open()) {
+	            std::cerr << "Error opening csopesylog.txt for logging." << std::endl;
+	            return;
+	        }
+	    }
+	
+	    std::ostream& out = toFile ? logFile : std::cout;  // Use logFile or std::cout based on the flag
+	
+	    out << "--------------------------------------------------\n";
+	    out << "Running Processes:\n\n";
+	
+	    // Iterate through all processes to print Running Processes
+	    for (const auto& process : allProcesses) {
+	        if (process && !process->hasFinished()) {
+	            int coreId = -1;
+	            for (int core = 0; core < numCores; ++core) {
+	                if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
+	                    coreId = core; 
+	                    break;
+	                }
+	            }
+	
+	            if (!process->getStartExecutionTime().empty()) {
+	                out << process->getName() << " (" 
+	                    << process->getStartExecutionTime() << ") " 
+	                    << "Core: " << coreId << " " 
+	                    << process->getExecutedInstructions() << "/" 
+	                    << process->getTotalInstructions() << "\n";
+	            } else {
+	                out << process->getName() << " NOT STARTED " 
+	                    << process->getExecutedInstructions() << "/" 
+	                    << process->getTotalInstructions() << "\n";
+	            }
+	        }
+	    }
+	
+	    out << "\nFinished Processes:\n\n";
+	    for (const auto& process : allProcesses) {
+	        if (process && process->hasFinished()) {
+	            out << process->getName() << " (" 
+	                << process->getEndExecutionTime() << ") "
+	                << "Finished " << process->getExecutedInstructions() << "/" 
+	                << process->getTotalInstructions() << "\n";
+	        }
+	    }
+	
+	    out << "--------------------------------------------------\n";
+	
+	    if (toFile) {
+	        logFile.close(); 
+	    }
+	}
     
     Process* findProcessByName(const std::string& name) override{
         for (const auto& process : allProcesses) { 
@@ -488,56 +501,63 @@ public:
             }
         }
     }
+	void printProcessStatus(bool toFile) override{
+	   	std::lock_guard<std::mutex> lock(mtx);  
+	   	std::ofstream logFile;
+	    if (toFile) {
+	        logFile.open("csopesylog.txt", std::ios::app);  // Open in append mode
+	        if (!logFile.is_open()) {
+	            std::cerr << "Error opening csopesylog.txt for logging." << std::endl;
+	            return;
+	        }
+	    }
+	    std::ostream& out = toFile ? logFile : std::cout;
+	    out << "--------------------------------------------------\n";
+	    out << "Running Processes:\n\n";
+	
+	    // Iterate through all processes to print Running Processes
+	    for (const auto& process : allProcesses){
+	        if (process && !process->hasFinished()) { 
+	            int coreId = -1; 
+	            for (int core = 0; core < numCores; ++core) {
+	                if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
+	                    coreId = core; 
+	                    break;
+	                }
+	            }
+	
+	            // Print core ID only if the process has started executing
+	            if (!process->getStartExecutionTime().empty()) {
+	                out << process->getName() << " (" 
+	                          << process->getStartExecutionTime() << ") " 
+	                          << "Core: " << coreId << " " 
+	                          << process->getExecutedInstructions() << "/" 
+	                          << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+	            } else {
+	                out << process->getName() << " NOT STARTED " 
+	                          << process->getExecutedInstructions() << "/" 
+	                          << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+	            }
+	        }
+    	}
 
-    // Function to print the status of processes
-    void printProcessStatus() override{
-        std::lock_guard<std::mutex> lock(mtx);
-        std::cout << "--------------------------------------------------\n";
-        std::cout << "Running Processes:\n\n";
+	    std::cout << "\nFinished Processes:\n\n";
+	    
+	    for (const auto& process : allProcesses) {
+	        if (process && process->hasFinished()) { 
+	            out << process->getName() << " (" 
+	                      << process->getEndExecutionTime() << ") "
+	                      << "Finished " << process->getExecutedInstructions() << "/" 
+	                      << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+	        }
+	    }
+	
+	    out << "--------------------------------------------------\n";
+	    if (toFile) {
+	        logFile.close(); 
+	    }
+    }    
 
-        // Iterate through all processes to print Running Processes
-        for (const auto& process : allProcesses) {
-            if (process && !process->hasFinished()) {
-                int coreId = -1;
-                for (int core = 0; core < numCores; ++core) {
-                    auto it = std::find_if(processQueues[core].begin(), processQueues[core].end(),
-                                           [&process](const std::shared_ptr<Process>& p) {
-                                               return p.get() == process.get();
-                                           });                              
-
-                    if (it != processQueues[core].end()) {
-                        coreId = core;
-                        break;
-                    }
-                }
-
-                if (!process->getStartExecutionTime().empty()) {
-                    std::cout << process->getName() << " (" 
-                              << process->getStartExecutionTime() << ") " 
-                              << "Core: " << coreId << " " 
-                              << process->getExecutedInstructions() << "/" 
-                              << process->getTotalInstructions() << "\n";
-                } else {
-                    std::cout << process->getName() << " NOT STARTED " 
-                              << process->getExecutedInstructions() << "/" 
-                              << process->getTotalInstructions() << "\n";
-                }
-            }
-        }
-
-        std::cout << "\nFinished Processes:\n\n";
-        for (const auto& process : allProcesses) {
-            if (process && process->hasFinished()) {
-                std::cout << process->getName() << " (" 
-                          << process->getEndExecutionTime() << ") "
-                          << "Finished " << process->getExecutedInstructions() << "/" 
-                          << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
-            }
-        }
-
-        std::cout << "--------------------------------------------------\n";
-    }
-    
 	Process* findProcessByName(const std::string& name) override{
         for (const auto& process : allProcesses) { 
             if (process->getName() == name) {
@@ -668,7 +688,7 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
         system("cls"); 
         banner();
     } else if (command == "screen -ls") {
-       		scheduler.printProcessStatus();
+       		scheduler.printProcessStatus(false);
     } else if (command.rfind("screen -s", 0) == 0) {
         size_t startPos = command.find("-s") + 3;  // +3 to skip "-s " part
     		std::string screenName = command.substr(startPos);  
@@ -754,7 +774,7 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
             processGenerationThread.join();
         }
     } else if (command == "report-util") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
+        scheduler.printProcessStatus(true);
     } else if (command == "non-blocking") {
         std::cout << command << " command recognized. Doing something." << std::endl;
         non_blocking();
