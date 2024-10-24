@@ -291,10 +291,21 @@ public:
 
     // Add a process to the scheduler
 	void addProcess(const std::shared_ptr<Process>& process) {
-           std::lock_guard<std::mutex> lock(mtx); 
-           allProcesses.push_back(process); 
-			int core = (allProcesses.size()-1)%numCores; 
-            processQueues[core].push_back(process); 
+           	std::lock_guard<std::mutex> lock(mtx); 
+           	allProcesses.push_back(process); 
+			//int core = (allProcesses.size()-1)%numCores; 
+            //processQueues[core].push_back(process); 
+            int minCore = 0; 
+		    size_t minQueueSize = processQueues[0].size();  
+		
+		    for (int i = 1; i < numCores; ++i) {
+		        if (processQueues[i].size() < minQueueSize) {
+		            minCore = i;  
+		            minQueueSize = processQueues[i].size();  
+		        }
+		    }
+		
+		    processQueues[minCore].push_back(process);
     }
 
 
@@ -304,7 +315,10 @@ public:
             std::shared_ptr<Process> currentProcess = nullptr;
             {
                 std::lock_guard<std::mutex> lock(mtx);  
-                if (processQueues[core].empty()) break; 
+                if (processQueues[core].empty()) {
+	                std::this_thread::sleep_for(std::chrono::milliseconds(100)); //sleep a CPU cycle so that it never closes
+	                continue; 
+            	}
                 currentProcess = processQueues[core].front();  
             }
 
@@ -469,7 +483,10 @@ public:
             std::shared_ptr<Process> currentProcess = nullptr;
             {
                 std::lock_guard<std::mutex> lock(mtx);  
-                if (processQueues[core].empty()) break; 
+                if (processQueues[core].empty()) {
+	                std::this_thread::sleep_for(std::chrono::milliseconds(100)); //sleep a CPU cycle so that it never closes
+	                continue; 
+            	} 
                 currentProcess = processQueues[core].front();  
             }
 
@@ -707,7 +724,7 @@ void generateProcesses(Scheduler& scheduler) {
     
     while (processGenerationActive) {
     	processCount++;
-        std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq));
+        std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq*100)); //100 ms is a cpu cycle
         int numInstructions = distr(eng);
         auto process = std::make_shared<Process>("Process " + std::to_string(processCount), processCount, numInstructions);
         scheduler.addProcess(process);
@@ -883,4 +900,3 @@ int main() {
 
     return 0; 
 }
-
