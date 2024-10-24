@@ -143,6 +143,22 @@ bool initializeConfig() {
     return true;
 }
 
+bool initialize_configs(std::string command){
+	bool initialized =false;
+	if (command == "initialize") {
+        if (initializeConfig()) {
+            std::cout << "Initialization successful!" << std::endl;
+            displayConfig();  
+            initialized = true;
+        } else {
+            std::cerr << "Initialization failed!" << std::endl;
+    	}
+	}
+    else{
+    	std::cerr << "Type initialize to setup the parameters for this emulator" << std::endl;
+	}
+	return initialized;
+}
 
 //Process class for use of FCFS and RR
 class Process {
@@ -283,12 +299,13 @@ public:
     FCFSScheduler(int cores) : numCores(cores), processQueues(cores) {}
 
     // Add a process to the scheduler
-    void addProcess(const std::shared_ptr<Process>& process) {
-            std::lock_guard<std::mutex> lock(mtx); 
-            allProcesses.push_back(process); 
+	void addProcess(const std::shared_ptr<Process>& process) {
+           std::lock_guard<std::mutex> lock(mtx); 
+           allProcesses.push_back(process); 
 			int core = (allProcesses.size()-1)%numCores; 
             processQueues[core].push_back(process); 
     }
+
 
     // Function for a single core to execute its processes concurrently
     void runCore(int core) {
@@ -342,9 +359,30 @@ public:
 	            return;
 	        }
 	    }
-	
 	    std::ostream& out = toFile ? logFile : std::cout;  // Use logFile or std::cout based on the flag
-	
+	    // Calculate CPU utilization as a percentage
+		int coresUsed = 0;
+		std::vector<bool> coreOccupied(numCores, false);  
+		
+		for (const auto& process : allProcesses) {
+		    if (process && !process->hasFinished()) {
+		        for (int core = 0; core < numCores; ++core) {
+		            if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
+		                if (!coreOccupied[core]) {  
+		                    coreOccupied[core] = true;
+		                    coresUsed++;
+		                }
+		                break;  
+		            }
+		        }
+		    }
+		}
+		
+		double cpuUtilization = (static_cast<double>(coresUsed) / numCores) * 100;  
+	    // Log CPU utilization and core usage
+	    out << "CPU Utilization: " << cpuUtilization << "%\n";
+	    out << "Cores Used: " << coresUsed << "/" << numCores << "\n";
+	    out << "Free Cores: " << numCores - coresUsed << "\n";
 	    out << "--------------------------------------------------\n";
 	    out << "Running Processes:\n\n";
 	
@@ -512,6 +550,30 @@ public:
 	        }
 	    }
 	    std::ostream& out = toFile ? logFile : std::cout;
+		int coresUsed = 0;
+		std::vector<bool> coreOccupied(numCores, false);  
+		
+		for (const auto& process : allProcesses) {
+		    if (process && !process->hasFinished()) {
+		        for (int core = 0; core < numCores; ++core) {
+		            if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
+		                if (!coreOccupied[core]) {  
+		                    coreOccupied[core] = true;
+		                    coresUsed++;
+		                }
+		                break;  
+		            }
+		        }
+		    }
+		}
+		
+		double cpuUtilization = (static_cast<double>(coresUsed) / numCores) * 100;  
+	
+	    // Log CPU utilization and core usage
+	    out << "CPU Utilization: " << cpuUtilization << "%\n";
+	    out << "Cores Used: " << coresUsed << "/" << numCores << "\n";
+	    out << "Free Cores: " << coresUsed-numCores << "\n";
+
 	    out << "--------------------------------------------------\n";
 	    out << "Running Processes:\n\n";
 	
@@ -601,7 +663,6 @@ public:
     }
 };
 
-
 class ScreenManager {
 private:
     std::vector<Screen> screens; 
@@ -645,23 +706,6 @@ public:
     
     
 };
-
-bool initialize_configs(std::string command){
-	bool initialized =false;
-	if (command == "initialize") {
-        if (initializeConfig()) {
-            std::cout << "Initialization successful!" << std::endl;
-            displayConfig();  
-            initialized = true;
-        } else {
-            std::cerr << "Initialization failed!" << std::endl;
-    	}
-	}
-    else{
-    	std::cerr << "Type initialize to setup the parameters for this emulator" << std::endl;
-	}
-	return initialized;
-}
 
 void generateProcesses(Scheduler& scheduler) {
     std::random_device rd;
