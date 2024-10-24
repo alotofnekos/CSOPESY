@@ -364,19 +364,20 @@ public:
 		int coresUsed = 0;
 		std::vector<bool> coreOccupied(numCores, false);  
 		
+
 		for (const auto& process : allProcesses) {
-		    if (process && !process->hasFinished()) {
+		    if (process && !process->hasFinished() && !process->getStartExecutionTime().empty()) { 
 		        for (int core = 0; core < numCores; ++core) {
 		            if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
 		                if (!coreOccupied[core]) {  
 		                    coreOccupied[core] = true;
 		                    coresUsed++;
 		                }
-		                break;  
+		                break; 
 		            }
 		        }
 		    }
-		}
+}
 		
 		double cpuUtilization = (static_cast<double>(coresUsed) / numCores) * 100;  
 	    // Log CPU utilization and core usage
@@ -553,8 +554,9 @@ public:
 		int coresUsed = 0;
 		std::vector<bool> coreOccupied(numCores, false);  
 		
+
 		for (const auto& process : allProcesses) {
-		    if (process && !process->hasFinished()) {
+		    if (process && !process->hasFinished() && !process->getStartExecutionTime().empty()) {  
 		        for (int core = 0; core < numCores; ++core) {
 		            if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
 		                if (!coreOccupied[core]) {  
