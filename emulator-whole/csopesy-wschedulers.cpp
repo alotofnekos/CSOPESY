@@ -160,14 +160,14 @@ private:
 public:
     Process(const std::string& processName, int processId, int numInstructions)
         : name(processName), id(processId), totalInstructions(numInstructions), remainingInstructions(numInstructions), executedInstructions(0) {
-        logFile.open("Process_" + std::to_string(processId) + ".txt"); // Open file for logging
-        logFile << "Process Name: " << name << "\nLogs:\n\n";
+        //logFile.open("Process_" + std::to_string(processId) + ".txt"); // Open file for logging
+        //logFile << "Process Name: " << name << "\nLogs:\n\n";
     }
 
     ~Process() {
-        if (logFile.is_open()) {
-            logFile.close(); 
-        }
+        //if (logFile.is_open()) {
+       //     logFile.close(); 
+       // }
     }
 
     // Execute one instruction of the process
@@ -176,21 +176,21 @@ public:
         if (remainingInstructions > 0) {
             // Set the start execution time if it hasn't been set yet
             if (startExecutionTime.empty()) {
-                auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                char buffer[100];
-                std::strftime(buffer, sizeof(buffer), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
-                startExecutionTime = buffer; // Store the execution start time
+                //auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                //char buffer[100];
+                //std::strftime(buffer, sizeof(buffer), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
+                //startExecutionTime = buffer; // Store the execution start time
             }
 
             // Simulate processing time
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-            auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-            char timestamp[100];
-            std::strftime(timestamp, sizeof(timestamp), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
+            //auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            //char timestamp[100];
+            //std::strftime(timestamp, sizeof(timestamp), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
 
-            logFile << "(" << timestamp << ") Core:" << coreId << " \"Hello world from " << name << "!\"\n"; // Log to file
-            logFile.flush(); 
+            //logFile << "(" << timestamp << ") Core:" << coreId << " \"Hello world from " << name << "!\"\n"; // Log to file
+            //logFile.flush(); 
             remainingInstructions--;
             executedInstructions++; // Increment executed instructions
         } 
@@ -708,7 +708,36 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
         } else {
             std::cout << "Error: No screen name provided!" << std::endl;
         }
-    } else if (command.rfind("screen", 0) == 0) {
+    }else if (command.rfind("screen -r", 0) == 0) {
+        size_t startPos = command.find("-r") + 3;  // +3 to skip "-r " part
+    		std::string screenName = command.substr(startPos);  
+        if (!screenName.empty()) {
+        	Process* proc = scheduler.findProcessByName(screenName); 
+        	if (manager.screenExists(screenName)&&!(proc->hasFinished())) {
+		            std::cout << "Opening " << screenName << std::endl;
+		            std::string processCommand;
+	            	bool exitScreen = false;
+	           		while (!exitScreen) {
+		                std::cout << "Process Screen - " << screenName << "\nEnter a command: ";
+		                std::getline(std::cin, processCommand);
+		
+		                if (processCommand == "process-smi") {
+		                    manager.callScreen(screenName);
+		                } else if (processCommand == "exit") {
+		                    std::cout << "Returning to main menu...\n";
+		                   	system("cls");
+		                    banner();
+		                    exitScreen = true;
+		                } else {
+		                    std::cout << "Invalid command. Try 'process-smi' or 'exit'.\n";
+		            	}
+	            	}
+		    }
+		    else{
+		    	std::cout << screenName << " not found or has finished execution." << std::endl;
+			}
+		}
+	}	else if (command.rfind("screen", 0) == 0) {
     	std::cout << "Syntax: screen -s <name>" << std::endl;
 	} else if (command == "scheduler-test") {
         std::cout << "Scheduler test started.\n";
