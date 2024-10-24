@@ -842,15 +842,6 @@ void runScheduler(Scheduler& scheduler) {
     }
 }
 
-void runInterpreter(Scheduler& scheduler, ScreenManager& manager,std::thread& processGenerationThread) {
-    std::string command;
-    while (true) {
-        std::getline(std::cin, command);
-        if (interpreter(command, manager, scheduler,processGenerationThread)) {
-            break;
-        }
-    }
-}
 
 int main() {
     banner(); 
