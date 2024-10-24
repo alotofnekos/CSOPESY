@@ -561,12 +561,14 @@ public:
 
     void create() const {
         std::string content = " Screen Name: " + name + "\n Date Created: " + creationDate;
-            content += "\n Process ID: " + std::to_string(process->getId())
-                       + "\n Total Instructions: " + std::to_string(process->getTotalInstructions())
-                       + "\n Executed Instructions: " + std::to_string(process->getExecutedInstructions())
-                       + "\n Start Time: " + process->getStartExecutionTime()
-                       + "\n End Time: " + process->getEndExecutionTime();
-
+            content += "\n Process ID: " + std::to_string(process->getId());
+            if((process->getTotalInstructions())==(process->getExecutedInstructions())){
+            	content += "\n Finished";
+			}
+			else{
+				content +="\n Total Instructions: " + std::to_string(process->getTotalInstructions())
+                       + "\n Executed Instructions: " + std::to_string(process->getExecutedInstructions());
+			}
         size_t width = 40;
         // Borders
         std::cout << std::string(width, borderStyle[0]) << std::endl;
@@ -645,8 +647,9 @@ void generateProcesses(Scheduler& scheduler) {
     std::random_device rd;
     std::mt19937 eng(rd());
     std::uniform_int_distribution<> distr(min_ins, max_ins);
-    processCount++;
+    
     while (processGenerationActive) {
+    	processCount++;
         std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq));
         int numInstructions = distr(eng);
         auto process = std::make_shared<Process>("Process " + std::to_string(processCount), processCount, numInstructions);
@@ -664,13 +667,6 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
     if (command == "clear") {
         system("cls"); 
         banner();
-    } else if (command == "initialize") {
-        if (initializeConfig()) {
-            std::cout << "Initialization successful!" << std::endl;
-            displayConfig();  
-        } else {
-            std::cerr << "Initialization failed!" << std::endl;
-        }
     } else if (command == "screen -ls") {
        		scheduler.printProcessStatus();
     } else if (command.rfind("screen -s", 0) == 0) {
@@ -679,14 +675,33 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
         if (!screenName.empty()) {
         	Process* proc = scheduler.findProcessByName(screenName);
         	if (proc) {
+        		system("cls"); 
 		        if (manager.screenExists(screenName)) {
 		            std::cout << "Screen already exists. Opening " << screenName << std::endl;
-		            manager.callScreen(screenName);
+		            
 		        } else {
 		            std::cout << "Creating new screen: " << screenName << std::endl;
 		            manager.addScreen(screenName, proc);
-	                manager.callScreen(screenName);
 		            }
+		                   
+	            std::string processCommand;
+	            bool exitScreen = false;
+	
+	            while (!exitScreen) {
+	                std::cout << "Process Screen - " << screenName << "\nEnter a command: ";
+	                std::getline(std::cin, processCommand);
+	
+	                if (processCommand == "process-smi") {
+	                    manager.callScreen(screenName);
+	                } else if (processCommand == "exit") {
+	                    std::cout << "Returning to main menu...\n";
+	                   	system("cls");
+	                    banner();
+	                    exitScreen = true;
+	                } else {
+	                    std::cout << "Invalid command. Try 'process-smi' or 'exit'.\n";
+	            	}
+            	}
             } else {
                 std::cout << "No process found with the name: " << screenName << std::endl;
             }
