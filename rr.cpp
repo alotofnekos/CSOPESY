@@ -10,6 +10,7 @@
 #include <iomanip> 
 #include <queue> 
 #include <algorithm>
+//#include <pthread>
 
 class Process {
 private:
@@ -17,13 +18,16 @@ private:
     int id;
     int totalInstructions;
     int remainingInstructions;
-    int executedInstructions; 
+    int executedInstructions;
     std::string startExecutionTime; 
     std::string endExecutionTime; 
     std::ofstream logFile; 
     mutable std::mutex mtx; 
+    int lastKnownCore = -1; 
 
 public:
+	
+		
     Process(const std::string& processName, int processId, int numInstructions)
         : name(processName), id(processId), totalInstructions(numInstructions), remainingInstructions(numInstructions), executedInstructions(0) {
         logFile.open("Process_" + std::to_string(processId) + ".txt"); // Open file for logging
@@ -35,7 +39,7 @@ public:
             logFile.close(); 
         }
     }
-
+    
     // Execute one instruction of the process
     void executeInstruction(int coreId) {
         std::lock_guard<std::mutex> lock(mtx); 
@@ -121,6 +125,16 @@ public:
 	int getTotalInstructions() const {
         return totalInstructions; 
     }
+    
+    // Cache lastKnownCore
+    int getLastKnownCore() const {
+        return lastKnownCore;
+    }
+
+    
+    void setLastKnownCore(int core) {
+        lastKnownCore = core;
+    }
 };
 
 class RRScheduler {
@@ -131,101 +145,117 @@ private:
     std::vector<std::shared_ptr<Process>> allProcesses;  // All processes
     std::queue<std::shared_ptr<Process>> finishedProcesses;  // Finished processes
     std::mutex mtx;  // Mutex for thread safety
-    int cycle = 0;
     int nextProcessIndex = 0;
-    int coreIndex1 = 0;
-    int coreIndex2 = 0;
-	int totalProcess=0;
+    int totalProcess = 0;
+
 public:
     RRScheduler(int cores, int quantum) : numCores(cores), quantumTime(quantum), processQueues(cores) {}
 
     // Add a process to the scheduler
-	void addProcess(const std::shared_ptr<Process>& process) {
-	    static int nextCore = 0;
-		  	
-	    std::lock_guard<std::mutex> lock(mtx);
-	    
-	    processQueues[nextCore].push_back(process);
-	    
-	    allProcesses.push_back(process); 
-	    
-		nextCore = (nextCore+1) % numCores; 
-		totalProcess++;
-	}
+    void addProcess(const std::shared_ptr<Process>& process) {
+        static int nextCore = 0;
+        std::lock_guard<std::mutex> lock(mtx);
+        
+        processQueues[nextCore].push_back(process); 
+        allProcesses.push_back(process);  
+        nextCore = (nextCore + 1) % numCores;  
+        totalProcess++;
+    }
 
-
-    // Function for a single core to execute its processes concurrently with Round-Robin scheduling
-	void runCore(int core) {
-		
+    // Function for a single core to execute its processes
+    void runCore(int core) {
         while (true) {
             std::shared_ptr<Process> currentProcess = nullptr;
-            {
-                std::lock_guard<std::mutex> lock(mtx);  
-                if (processQueues[core].empty()) break; 
-                currentProcess = processQueues[core].front();  
-            }
+	        {
+	            std::lock_guard<std::mutex> lock(mtx);
+	            // Check if the current core has processes
+	            if (processQueues[core].empty()) {
+	                // If the current core is empty, loop through other cores
+	                for (int i = 0; i < numCores; ++i) {
+	                    int nextCore = (core + i + 1) % numCores;  
+	
+	                    // If the next core has at least two processes, take the second one
+	                    if (processQueues[nextCore].size() > 1) {
+	                        currentProcess = processQueues[nextCore][1]; 
+	                        processQueues[nextCore].erase(processQueues[nextCore].begin() + 1);
+	                        break; 
+	                    }
+	                }
+	                
+	                // If no second processes found after checking all cores, steal the next immediate process
+	                if (!currentProcess) {
+	                    for (int i = 0; i < numCores; ++i) {
+	                    int nextCore = (core + i + 1) % numCores; 
+	
+	                    // If the next core has a processes, take it
+		                    if (processQueues[nextCore].size() > 0) {
+		                        currentProcess = processQueues[nextCore][0]; 
+		                        processQueues[nextCore].erase(processQueues[nextCore].begin());
+		                        break;
+		                    }
+	                	}
+	                }
+	                
+	                // If no processes found after checking all cores, exit the loop
+	                if(!currentProcess){
+	                	std::this_thread::sleep_for(std::chrono::milliseconds(100)); //sleep a CPU cycle so that it never closes
+	                	continue;
+					}
+	            } else {
+	                // If the current core is not empty, get the next process
+	                currentProcess = processQueues[core].front();
+					currentProcess->setLastKnownCore(core);  
+	                processQueues[core].erase(processQueues[core].begin()); 
+	            }
+	        } 
 
+
+            // Execute the process for the given quantum time
             if (currentProcess && !currentProcess->hasFinished()) {
                 currentProcess->executeForTimeSlice(quantumTime, core);
-                cycle++;
             }
 
-            // If the process is finished, remove it from the queue
+            // After execution, check if the process is finished
             if (currentProcess && currentProcess->hasFinished()) {
-                {
-                    std::lock_guard<std::mutex> lock(mtx);  
-                    currentProcess->finalize(); 
-                    finishedProcesses.push(currentProcess); 
-                    processQueues[core].erase(processQueues[core].begin());  
-                }
-            }
-            else {
-			        std::lock_guard<std::mutex> lock(mtx);	
-			        
-			   		auto currentProcess = allProcesses[nextProcessIndex];
-			   		auto core = allProcesses[coreIndex1];
-			    
-			   		processQueues[coreIndex1].erase(processQueues[coreIndex1].begin()); 
-			
-			   		coreIndex2 = (coreIndex1+(allProcesses.size()% numCores));
-			
-					if (coreIndex2 >= numCores){
-						coreIndex2 = coreIndex2-numCores;
-						}
+                std::lock_guard<std::mutex> lock(mtx);
+                currentProcess->finalize();  // Finalize the process
+                finishedProcesses.push(currentProcess);  // Add to finished queue
+            //   processQueues[core].erase(processQueues[core].begin());
+                
+                
+            } else {
+                // If not finished, re-insert it into the next core's queue for further execution
+                std::lock_guard<std::mutex> lock(mtx);
+             	                  
+                int nextCore  = (core+(allProcesses.size() % numCores));
+							
+				if (nextCore >= numCores){
+						nextCore = nextCore-numCores;
+				}
 					
-					processQueues[coreIndex2].push_back(currentProcess);
-						
-					coreIndex1 = (coreIndex1+1) % numCores;
-					
-					if (nextProcessIndex < (totalProcess-1)){
-						nextProcessIndex++; 	
-						}
-					else {
-				 		nextProcessIndex = 0;
-					}        
-			 }
+            	processQueues[nextCore].push_back(currentProcess);
+            //	processQueues[core].erase(processQueues[core].begin());
+        	}
         }
     }
 
-    // Run the scheduler concurrently across all cores
+    // Run the scheduler across all cores
     void runScheduler() {
         std::vector<std::thread> coreThreads;
-        
 
         for (int core = 0; core < numCores; ++core) {
             coreThreads.push_back(std::thread([this, core]() { runCore(core); }));  // Start thread for each core
-        
         }
 
         for (auto& thread : coreThreads) {
             if (thread.joinable()) {
-                thread.join();
+                thread.join();  // Wait for all cores to finish
             }
         }
     }
 
     // Function to print the status of processes
-    void printProcessStatus() {
+    void printProcessStatus() { 
         std::lock_guard<std::mutex> lock(mtx);
         std::cout << "--------------------------------------------------\n";
         std::cout << "Running Processes:\n\n";
@@ -245,6 +275,9 @@ public:
                         break;
                     }
                 }
+            if (coreId == -1 && process->getLastKnownCore() != -1) {
+                coreId = process->getLastKnownCore();
+            }
 
                 if (!process->getStartExecutionTime().empty()) {
                     std::cout << process->getName() << " (" 
@@ -289,11 +322,15 @@ public:
 };
 
 
+
 // Main function 
 int main() {
-    RRScheduler scheduler(5,20); 
+    RRScheduler scheduler(5,40); 
+    	std::random_device rd;  // Obtain a random number from hardware
+    	std::mt19937 eng(rd()); // Seed the generator
+    	std::uniform_int_distribution<> distr(100, 200);
     	for (int i = 0; i < 14; ++i) { 
-	    int numInstructions = 100; 
+	    int numInstructions = distr(eng);
 	    auto process = std::make_shared<Process>("Process " + std::to_string(i + 1), i + 1, numInstructions);
 	    scheduler.addProcess(process);  
 	}
@@ -304,7 +341,7 @@ int main() {
     // Join command thread before exiting
     if (commandThread.joinable()) {
         commandThread.join();
-    }
+    }  
 
-    return 0;
+    return 0; 
 }
