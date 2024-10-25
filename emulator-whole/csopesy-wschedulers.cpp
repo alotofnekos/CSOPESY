@@ -171,6 +171,7 @@ private:
     std::string startExecutionTime; 
     std::string endExecutionTime; 
     mutable std::mutex mtx; 
+    int lastKnownCore = -1;
 
 public:
     Process(const std::string& processName, int processId, int numInstructions)
@@ -266,6 +267,16 @@ public:
     
 	int getTotalInstructions() const {
         return totalInstructions; 
+    }
+    
+    // Cache lastKnownCore
+    int getLastKnownCore() const {
+        return lastKnownCore;
+    }
+
+    
+    void setLastKnownCore(int core) {
+        lastKnownCore = core;
     }
 };
 
@@ -453,82 +464,90 @@ private:
     std::vector<std::shared_ptr<Process>> allProcesses;  // All processes
     std::queue<std::shared_ptr<Process>> finishedProcesses;  // Finished processes
     std::mutex mtx;  // Mutex for thread safety
-    int cycle = 0;
-    int nextProcessIndex = 0;
-    int coreIndex1 = 0;
-    int coreIndex2 = 0;
-	int totalProcess=0;
 public:
     RRScheduler(int cores, int quantum) : numCores(cores), quantumTime(quantum), processQueues(cores) {}
 
     // Add a process to the scheduler
 	void addProcess(const std::shared_ptr<Process>& process) {
-	    static int nextCore = 0;
-		  	
-	    std::lock_guard<std::mutex> lock(mtx);
-	    
-	    processQueues[nextCore].push_back(process);
-	    
-	    allProcesses.push_back(process); 
-	    
-		nextCore = (nextCore+1) % numCores; 
-		totalProcess++;
+        static int nextCore = 0;
+        std::lock_guard<std::mutex> lock(mtx);
+
+        processQueues[nextCore].push_back(process); 
+        allProcesses.push_back(process);  
+        nextCore = (nextCore + 1) % numCores;  
 	}
 
 
     // Function for a single core to execute its processes concurrently with Round-Robin scheduling
-	void runCore(int core) {
-		
+    void runCore(int core) {
         while (true) {
             std::shared_ptr<Process> currentProcess = nullptr;
-            {
-                std::lock_guard<std::mutex> lock(mtx);  
-                if (processQueues[core].empty()) {
-	                std::this_thread::sleep_for(std::chrono::milliseconds(100)); //sleep a CPU cycle so that it never closes
-	                continue; 
-            	} 
-                currentProcess = processQueues[core].front();  
-            }
+	        {
+	            std::lock_guard<std::mutex> lock(mtx);
+	            // Check if the current core has processes
+	            if (processQueues[core].empty()) {
+	                // If the current core is empty, loop through other cores
+	                for (int i = 0; i < numCores; ++i) {
+	                    int nextCore = (core + i + 1) % numCores;  
+	
+	                    // If the next core has at least two processes, take the second one
+	                    if (processQueues[nextCore].size() > 1) {
+	                        currentProcess = processQueues[nextCore][1]; 
+	                        processQueues[nextCore].erase(processQueues[nextCore].begin() + 1);
+	                        break; 
+	                    }
+	                }
+	                
+	                // If no second processes found after checking all cores, steal the next immediate process
+	                if (!currentProcess) {
+	                    for (int i = 0; i < numCores; ++i) {
+	                    int nextCore = (core + i + 1) % numCores; 
+	
+	                    // If the next core has a processes, take it
+		                    if (processQueues[nextCore].size() > 0) {
+		                        currentProcess = processQueues[nextCore][0]; 
+		                        processQueues[nextCore].erase(processQueues[nextCore].begin());
+		                        break;
+		                    }
+	                	}
+	                }
+	                
+	                // If no processes found after checking all cores, exit the loop
+	                if(!currentProcess){
+	                	std::this_thread::sleep_for(std::chrono::milliseconds(100)); //sleep a CPU cycle so that it never closes
+	                	continue;
+					}
+	            } else {
+	                // If the current core is not empty, get the next process
+	                currentProcess = processQueues[core].front();
+					currentProcess->setLastKnownCore(core);  
+	                processQueues[core].erase(processQueues[core].begin()); 
+	            }
+	        } 
 
+
+            // Execute the process for the given quantum time
             if (currentProcess && !currentProcess->hasFinished()) {
                 currentProcess->executeForTimeSlice(quantumTime, core);
-                cycle++;
             }
 
-            // If the process is finished, remove it from the queue
+            // After execution, check if the process is finished
             if (currentProcess && currentProcess->hasFinished()) {
-                {
-                    std::lock_guard<std::mutex> lock(mtx);  
-                    currentProcess->finalize(); 
-                    finishedProcesses.push(currentProcess); 
-                    processQueues[core].erase(processQueues[core].begin());  
-                }
-            }
-            else {
-			        std::lock_guard<std::mutex> lock(mtx);	
-			        
-			   		auto currentProcess = allProcesses[nextProcessIndex];
-			   		auto core = allProcesses[coreIndex1];
-			    
-			   		processQueues[coreIndex1].erase(processQueues[coreIndex1].begin()); 
-			
-			   		coreIndex2 = (coreIndex1+(allProcesses.size()% numCores));
-			
-					if (coreIndex2 >= numCores){
-						coreIndex2 = coreIndex2-numCores;
-						}
+                std::lock_guard<std::mutex> lock(mtx);
+                currentProcess->finalize();  // Finalize the process
+                finishedProcesses.push(currentProcess);  // Add to finished queue
+            } else {
+                // If not finished, re-insert it into the next core's queue for further execution
+                std::lock_guard<std::mutex> lock(mtx);
+             	                  
+                int nextCore  = (core+(allProcesses.size() % numCores));
+							
+				if (nextCore >= numCores){
+						nextCore = nextCore-numCores;
+				}
 					
-					processQueues[coreIndex2].push_back(currentProcess);
-						
-					coreIndex1 = (coreIndex1+1) % numCores;
-					
-					if (nextProcessIndex < (totalProcess-1)){
-						nextProcessIndex++; 	
-						}
-					else {
-				 		nextProcessIndex = 0;
-					}        
-			 }
+            	processQueues[nextCore].push_back(currentProcess);
+        	}
         }
     }
 
@@ -582,7 +601,7 @@ public:
 	    // Log CPU utilization and core usage
 	    out << "CPU Utilization: " << cpuUtilization << "%\n";
 	    out << "Cores Used: " << coresUsed << "/" << numCores << "\n";
-	    out << "Free Cores: " << coresUsed-numCores << "\n";
+	    out << "Free Cores: " << numCores-coresUsed << "\n";
 
 	    out << "--------------------------------------------------\n";
 	    out << "Running Processes:\n\n";
@@ -597,14 +616,16 @@ public:
 	                    break;
 	                }
 	            }
-	
+			if (coreId == -1 && process->getLastKnownCore() != -1) {
+                coreId = process->getLastKnownCore();
+            }
 	            // Print core ID only if the process has started executing
-	            if (!process->getStartExecutionTime().empty()) {
-	                out << process->getName() << " (" 
-	                          << process->getStartExecutionTime() << ") " 
-	                          << "Core: " << coreId << " " 
-	                          << process->getExecutedInstructions() << "/" 
-	                          << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+	        if (!process->getStartExecutionTime().empty()) {
+				out << process->getName() << " (" 
+	                << process->getStartExecutionTime() << ") " 
+	                << "Core: " << coreId << " " 
+	                << process->getExecutedInstructions() << "/" 
+	                << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
 	            } else {
 	                out << process->getName() << " NOT STARTED " 
 	                          << process->getExecutedInstructions() << "/" 
