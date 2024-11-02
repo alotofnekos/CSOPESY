@@ -296,6 +296,7 @@ private:
     std::vector<std::shared_ptr<Process>> allProcesses; 
     std::queue<std::shared_ptr<Process>> finishedProcesses; 
     std::mutex mtx;  
+    std::atomic<int> activeCoreCount{0}; 
 
 public:
     FCFSScheduler(int cores) : numCores(cores), processQueues(cores) {}
@@ -317,16 +318,22 @@ public:
 		    }
 		
 		    processQueues[minCore].push_back(process);
+		    
     }
 
 
     // Function for a single core to execute its processes concurrently
     void runCore(int core) {
+    	bool isCoreActive = false; 
         while (true) {
             std::shared_ptr<Process> currentProcess = nullptr;
             {
                 std::lock_guard<std::mutex> lock(mtx);  
                 if (processQueues[core].empty()) {
+                	if (isCoreActive) {
+                    	activeCoreCount--;
+                    	isCoreActive = false;
+                	}
 	                std::this_thread::sleep_for(std::chrono::milliseconds(100)); //sleep a CPU cycle so that it never closes
 	                continue; 
             	}
@@ -334,6 +341,10 @@ public:
             }
 
             if (currentProcess && !currentProcess->hasFinished()) {
+            	if (!isCoreActive) {
+                   	activeCoreCount++;
+                   	isCoreActive = true;
+                }
                 currentProcess->executeInstruction(core);  
             }
 
@@ -376,30 +387,12 @@ public:
 	        }
 	    }
 	    std::ostream& out = toFile ? logFile : std::cout;  // Use logFile or std::cout based on the flag
-	    // Calculate CPU utilization as a percentage
-		int coresUsed = 0;
-		std::vector<bool> coreOccupied(numCores, false);  
-		
-
-		for (const auto& process : allProcesses) {
-		    if (process && !process->hasFinished() && !process->getStartExecutionTime().empty()) { 
-		        for (int core = 0; core < numCores; ++core) {
-		            if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
-		                if (!coreOccupied[core]) {  
-		                    coreOccupied[core] = true;
-		                    coresUsed++;
-		                }
-		                break; 
-		            }
-		        }
-		    }
-}
-		
-		double cpuUtilization = (static_cast<double>(coresUsed) / numCores) * 100;  
 	    // Log CPU utilization and core usage
+		double cpuUtilization = (static_cast<double>(activeCoreCount) / numCores) * 100;
 	    out << "CPU Utilization: " << cpuUtilization << "%\n";
-	    out << "Cores Used: " << coresUsed << "/" << numCores << "\n";
-	    out << "Free Cores: " << numCores - coresUsed << "\n";
+	    out << "Cores Used: " << activeCoreCount << "/" << numCores << "\n";
+	    out << "Free Cores: " << numCores-activeCoreCount << "\n";
+
 	    out << "--------------------------------------------------\n";
 	    out << "Running Processes:\n\n";
 	
@@ -464,22 +457,24 @@ private:
     std::vector<std::shared_ptr<Process>> allProcesses;  // All processes
     std::queue<std::shared_ptr<Process>> finishedProcesses;  // Finished processes
     std::mutex mtx;  // Mutex for thread safety
+    int nextCore = 0;
+    std::atomic<int> activeCoreCount{0};  
 public:
     RRScheduler(int cores, int quantum) : numCores(cores), quantumTime(quantum), processQueues(cores) {}
 
     // Add a process to the scheduler
 	void addProcess(const std::shared_ptr<Process>& process) {
-        static int nextCore = 0;
-        std::lock_guard<std::mutex> lock(mtx);
-
-        processQueues[nextCore].push_back(process); 
-        allProcesses.push_back(process);  
-        nextCore = (nextCore + 1) % numCores;  
+        std::lock_guard<std::mutex> lock(mtx); 
+    	processQueues[nextCore].push_back(process); 
+    	allProcesses.push_back(process);          
+		process->setLastKnownCore(nextCore);
+		nextCore = (nextCore + 1) % numCores;  
 	}
 
 
     // Function for a single core to execute its processes concurrently with Round-Robin scheduling
     void runCore(int core) {
+    	bool isCoreActive = false; 
         while (true) {
             std::shared_ptr<Process> currentProcess = nullptr;
 	        {
@@ -487,6 +482,10 @@ public:
 	            // Check if the current core has processes
 	            if (processQueues[core].empty()) {
 	                // If the current core is empty, loop through other cores
+	                if (isCoreActive) {
+                    	activeCoreCount--;
+                    	isCoreActive = false;
+                	}
 	                for (int i = 0; i < numCores; ++i) {
 	                    int nextCore = (core + i + 1) % numCores;  
 	
@@ -528,6 +527,10 @@ public:
 
             // Execute the process for the given quantum time
             if (currentProcess && !currentProcess->hasFinished()) {
+                if (!isCoreActive) {
+                   	activeCoreCount++;
+                   	isCoreActive = true;
+                }
                 currentProcess->executeForTimeSlice(quantumTime, core);
             }
 
@@ -577,37 +580,19 @@ public:
 	            return;
 	        }
 	    }
-	    std::ostream& out = toFile ? logFile : std::cout;
-		int coresUsed = 0;
-		std::vector<bool> coreOccupied(numCores, false);  
-		
-
-		for (const auto& process : allProcesses) {
-		    if (process && !process->hasFinished() && !process->getStartExecutionTime().empty()) {  
-		        for (int core = 0; core < numCores; ++core) {
-		            if (std::find(processQueues[core].begin(), processQueues[core].end(), process) != processQueues[core].end()) {
-		                if (!coreOccupied[core]) {  
-		                    coreOccupied[core] = true;
-		                    coresUsed++;
-		                }
-		                break;  
-		            }
-		        }
-		    }
-		}
-		
-		double cpuUtilization = (static_cast<double>(coresUsed) / numCores) * 100;  
+	    std::ostream& out = toFile ? logFile : std::cout; 
 	
 	    // Log CPU utilization and core usage
+		double cpuUtilization = (static_cast<double>(activeCoreCount) / numCores) * 100;
 	    out << "CPU Utilization: " << cpuUtilization << "%\n";
-	    out << "Cores Used: " << coresUsed << "/" << numCores << "\n";
-	    out << "Free Cores: " << numCores-coresUsed << "\n";
+	    out << "Cores Used: " << activeCoreCount << "/" << numCores << "\n";
+	    out << "Free Cores: " << numCores-activeCoreCount << "\n";
 
 	    out << "--------------------------------------------------\n";
 	    out << "Running Processes:\n\n";
 	
 	    // Iterate through all processes to print Running Processes
-	    for (const auto& process : allProcesses){
+		for (const auto& process : allProcesses){
 	        if (process && !process->hasFinished()) { 
 	            int coreId = -1; 
 	            for (int core = 0; core < numCores; ++core) {
@@ -633,6 +618,7 @@ public:
 	            }
 	        }
     	}
+
 
 	    std::cout << "\nFinished Processes:\n\n";
 	    
