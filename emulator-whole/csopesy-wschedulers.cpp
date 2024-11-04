@@ -183,9 +183,9 @@ public:
             }
             //CPU Cycle
             if (delays_per_exec == 0) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
             } else {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000 * delays_per_exec));
+                std::this_thread::sleep_for(std::chrono::milliseconds(500 * delays_per_exec));
             }
             
             remainingInstructions--;
@@ -323,7 +323,7 @@ public:
                     	activeCoreCount--;
                     	isCoreActive = false;
                 	}
-	                std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //sleep a CPU cycle so that it never closes
+	                std::this_thread::sleep_for(std::chrono::milliseconds(500)); //sleep a CPU cycle so that it never closes
 	                continue; 
             	}
                 currentProcess = processQueues[core].front();  
@@ -502,7 +502,7 @@ public:
 	                
 	                // If no processes found after checking all cores, exit the loop
 	                if(!currentProcess){
-	                	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //sleep a CPU cycle so that it never closes
+	                	std::this_thread::sleep_for(std::chrono::milliseconds(500)); //sleep a CPU cycle so that it never closes
 	                	continue;
 					}
 	            } else {
@@ -720,7 +720,7 @@ void generateProcesses(Scheduler& scheduler) {
     
     while (processGenerationActive) {
     	processCount++;
-        std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq*1000)); //1000 ms is a cpu cycle
+        std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq*500)); //500 ms is a cpu cycle
         int numInstructions = distr(eng);
         auto process = std::make_shared<Process>("Process " + std::to_string(processCount), processCount, numInstructions);
         scheduler.addProcess(process);
