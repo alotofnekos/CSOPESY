@@ -45,17 +45,6 @@ void banner(){
 	std::cout << "type 'exit' to quit, or 'clear' to clear the screen\n";
 }
 
-void non_blocking()
-{
-    char ch;
-
-    std::cout << "Press keys to display the character. Press 'q' to quit.\n";
-    while ((ch = _getch()) != 'q') {
-        std::cout << "Key pressed: " << ch << std::endl;
-    }
-	std::cout << "q pressed, exiting non-blocking mode... "<< std::endl; 
-}
-
 std::string timestamp() {
     time_t timestamp;
     time(&timestamp);
@@ -838,9 +827,6 @@ int interpreter(std::string command, ScreenManager& manager,Scheduler& scheduler
     } else if (command == "report-util") {
         scheduler.printProcessStatus(true);
         std::cout << "Report generated at csopesylog.txt in the same folder as the emulator!" << std::endl;
-    } else if (command == "non-blocking") {
-        std::cout << command << " command recognized. Doing something." << std::endl;
-        non_blocking();
     } else if (command == "exit") {
         isExit=1;
         schedulerRunning = false;
