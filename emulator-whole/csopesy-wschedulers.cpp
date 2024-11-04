@@ -599,11 +599,11 @@ public:
 	                << process->getStartExecutionTime() << ") " 
 	                << "Core: " << coreId << " " 
 	                << process->getExecutedInstructions() << "/" 
-	                << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+	                << process->getTotalInstructions() << "\n";
 	            } else {
 	                out << process->getName() << " NOT STARTED " 
 	                          << process->getExecutedInstructions() << "/" 
-	                          << process->getRemainingInstructions() + process->getExecutedInstructions() << "\n";
+	                          << process->getTotalInstructions()<< "\n";
 	            }
 	        }
     	}
