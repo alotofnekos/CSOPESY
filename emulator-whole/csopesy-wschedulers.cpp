@@ -181,11 +181,11 @@ public:
                 std::strftime(buffer, sizeof(buffer), "%m/%d/%Y %I:%M:%S%p", std::localtime(&now));
                 startExecutionTime = buffer; // Store the execution start time
             }
-            
+            //CPU Cycle
             if (delays_per_exec == 0) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             } else {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100 * delays_per_exec));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000 * delays_per_exec));
             }
             
             remainingInstructions--;
@@ -323,7 +323,7 @@ public:
                     	activeCoreCount--;
                     	isCoreActive = false;
                 	}
-	                std::this_thread::sleep_for(std::chrono::milliseconds(100)); //sleep a CPU cycle so that it never closes
+	                std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //sleep a CPU cycle so that it never closes
 	                continue; 
             	}
                 currentProcess = processQueues[core].front();  
@@ -502,7 +502,7 @@ public:
 	                
 	                // If no processes found after checking all cores, exit the loop
 	                if(!currentProcess){
-	                	std::this_thread::sleep_for(std::chrono::milliseconds(100)); //sleep a CPU cycle so that it never closes
+	                	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //sleep a CPU cycle so that it never closes
 	                	continue;
 					}
 	            } else {
@@ -720,7 +720,7 @@ void generateProcesses(Scheduler& scheduler) {
     
     while (processGenerationActive) {
     	processCount++;
-        std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq*100)); //100 ms is a cpu cycle
+        std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq*1000)); //1000 ms is a cpu cycle
         int numInstructions = distr(eng);
         auto process = std::make_shared<Process>("Process " + std::to_string(processCount), processCount, numInstructions);
         scheduler.addProcess(process);
