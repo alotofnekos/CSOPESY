@@ -253,8 +253,14 @@ public:
             } else {
                 // If not finished, re-insert it into the next core's queue for further execution
                 std::lock_guard<std::mutex> lock(mtx);
-                int nextCore = (core + 1) % numCores;
-                processQueues[nextCore].push_back(currentProcess);
+             	                  
+                int nextCore  = (core+(allProcesses.size() % numCores));
+							
+				if (nextCore >= numCores){
+						nextCore = nextCore-numCores;
+				}
+					
+            	processQueues[nextCore].push_back(currentProcess);
             }
 
             // Produce a text file with the required information
