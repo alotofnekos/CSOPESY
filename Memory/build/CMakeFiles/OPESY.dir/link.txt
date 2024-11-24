@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/c++  -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/OPESY.dir/config.cpp.o CMakeFiles/OPESY.dir/console.cpp.o CMakeFiles/OPESY.dir/memory.cpp.o CMakeFiles/OPESY.dir/process.cpp.o CMakeFiles/OPESY.dir/scheduler.cpp.o -o OPESY

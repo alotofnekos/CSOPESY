@@ -1,0 +1,191 @@
+#include "headerFiles/scheduler.h"
+#include "headerFiles/process.h"
+#include <chrono>
+#include <cstdlib>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <thread>
+
+scheduler::scheduler(config config, std::vector<process*> *processes) : memory(config.getMaxOverallMemory(), config.getMemoryPerFrame(), config.getMemoryPerProcess()) {
+    num_cpu = config.getNumCPU(); 
+    schedulerType = config.getScheduler();
+    quantum_cycles = config.getQuantumCycles();
+    batch_process_freq = config.getBatchProcessFreq();
+    min_ins = config.getMinIns();
+    max_ins = config.getMaxIns();
+    delays_per_exec = config.getDelaysPerExec();
+    this->processes = processes;
+
+    cores.resize(num_cpu);
+    for (int i = 0; i < num_cpu; i++)
+    {
+        cores[i].index = i;
+        cores[i].thread = nullptr;
+        cores[i].process = nullptr;
+        cores[i].assigned = false; 
+    }
+}
+
+void scheduler::initializeCores() {
+    if (schedulerType == "fcfs")
+    {
+        for (int i = 0; i < num_cpu; i++)
+        {
+            cores[i].thread = new std::thread(&scheduler::FCFS, this, i);
+            cores[i].thread->detach();
+        }
+    } else if (schedulerType == "rr")
+    {
+        for (int i = 0; i < num_cpu; i++)
+        {
+            cores[i].thread = new std::thread(&scheduler::RR, this, i);
+            cores[i].thread->detach();
+        }
+    }
+}
+
+void scheduler::queueProcess(process *process) {
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        readyQueue.push(process);
+    }
+    cond.notify_one();
+}
+
+void scheduler::setGenerateProcesses(bool status) {
+    generateProcesses = status; 
+}
+
+void scheduler::generateProcessesFunc() {
+    int counter = 0;
+
+    while (generateProcesses)
+    {
+        auto *proc = new process("Process_" + std::to_string(counter));
+        counter++; 
+        proc->setTotalInstructions(rand() % (max_ins - min_ins + 1) + min_ins);
+        proc->setWaiting(true); 
+
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            processes->push_back(proc);
+        }
+
+        queueProcess(proc);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(batch_process_freq));
+    }
+}
+
+void scheduler::startGenerateProcessesThread() {
+    std::cout << "starting";
+    generateProcesses = true; 
+    std::thread generatorThread(&scheduler::generateProcessesFunc, this);
+    generatorThread.detach();
+}
+
+void scheduler::FCFS(int index) {
+
+}
+
+void scheduler::RR(int index) {
+    process *proc = nullptr;
+
+    while (true)
+    {
+        if (proc == nullptr)
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            cond.wait(lock, [this] {return !readyQueue.empty();});
+
+            if (readyQueue.empty())
+            {
+                return;
+            }
+
+            proc = readyQueue.front();
+            if (proc == nullptr)
+            {
+                continue; 
+            }
+            readyQueue.pop();
+        }
+        
+        {
+            std::lock_guard<std::mutex> lock(memoryMTX);
+            if (!memory.searchProc(proc->getName()) && !memory.allocateMemory(proc->getName(), memory.memory_per_process)) 
+            {
+                queueProcess(proc);
+                proc = nullptr;
+                continue;
+            }
+            
+        }
+
+        cores[index].process = proc; 
+        cores[index].assigned = true; 
+
+        proc->setCore(index);
+        proc->setRunning(true);
+        proc->setWaiting(false); 
+
+        int unexecutedInstructions = proc->getTotalInstructions() - proc->getExecutedInstructions();
+        int quantum = std::min(quantum_cycles, unexecutedInstructions); 
+
+        if(proc->startTime == 0) {
+            proc->startTime = std::time(nullptr);
+        }
+
+        for (int i = 0; i < quantum; i++)
+        {
+            proc->setExecutedInstructions(proc->getExecutedInstructions() + i + 1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec + 1 * 500));
+            // std::cout << "executed instruction for process" << proc->getName() << std::endl; 
+        }
+        
+        if (proc->getExecutedInstructions() == proc->getTotalInstructions())
+        {
+            proc->endTime = std::time(nullptr);
+            proc->setRunning(false);
+            proc->setDone(true);
+            cores[index].process = nullptr;
+            cores[index].assigned = false;
+            memory.deallocateMemory(proc->getName()); 
+            doneProcesses.push_back(proc);
+            proc = nullptr;
+        } 
+        else
+        {
+            if (!readyQueue.empty())
+            {
+                proc->setRunning(false);
+                proc->setWaiting(true);
+                cores[index].process = nullptr;
+                cores[index].assigned = false;
+                queueProcess(proc); 
+                proc = nullptr; 
+            }   
+        }
+    }
+}
+
+void scheduler::generateReport() {
+    int round = 0;
+    while (generateProcesses)
+    {
+        std::stringstream format;
+        format << "memory_stamp_" << round << ".txt";
+        {
+            std::lock_guard<std::mutex> lock(memoryMTX);
+            memory.generateReport(format.str());
+        }
+        round += quantum_cycles;
+        std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec + 1 * 500));
+    }
+}
+
+std::vector<core> *scheduler::getCores() {
+    return &cores; 
+}

@@ -1,0 +1,3 @@
+/Users/mez/Prayers/Mezen/build/CMakeFiles/OPESY.dir
+/Users/mez/Prayers/Mezen/build/CMakeFiles/edit_cache.dir
+/Users/mez/Prayers/Mezen/build/CMakeFiles/rebuild_cache.dir
