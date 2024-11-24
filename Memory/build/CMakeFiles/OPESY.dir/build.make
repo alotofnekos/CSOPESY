@@ -53,10 +53,10 @@ RM = /opt/homebrew/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/mez/Prayers/Mezen
+CMAKE_SOURCE_DIR = /Users/mez/Prayers/CSOPESY/Memory
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/mez/Prayers/Mezen/build
+CMAKE_BINARY_DIR = /Users/mez/Prayers/CSOPESY/Memory/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/OPESY.dir/depend.make
@@ -73,74 +73,74 @@ CMakeFiles/OPESY.dir/codegen:
 .PHONY : CMakeFiles/OPESY.dir/codegen
 
 CMakeFiles/OPESY.dir/config.cpp.o: CMakeFiles/OPESY.dir/flags.make
-CMakeFiles/OPESY.dir/config.cpp.o: /Users/mez/Prayers/Mezen/config.cpp
+CMakeFiles/OPESY.dir/config.cpp.o: /Users/mez/Prayers/CSOPESY/Memory/config.cpp
 CMakeFiles/OPESY.dir/config.cpp.o: CMakeFiles/OPESY.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/Mezen/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/OPESY.dir/config.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/config.cpp.o -MF CMakeFiles/OPESY.dir/config.cpp.o.d -o CMakeFiles/OPESY.dir/config.cpp.o -c /Users/mez/Prayers/Mezen/config.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/OPESY.dir/config.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/config.cpp.o -MF CMakeFiles/OPESY.dir/config.cpp.o.d -o CMakeFiles/OPESY.dir/config.cpp.o -c /Users/mez/Prayers/CSOPESY/Memory/config.cpp
 
 CMakeFiles/OPESY.dir/config.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/OPESY.dir/config.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/Mezen/config.cpp > CMakeFiles/OPESY.dir/config.cpp.i
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/CSOPESY/Memory/config.cpp > CMakeFiles/OPESY.dir/config.cpp.i
 
 CMakeFiles/OPESY.dir/config.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/OPESY.dir/config.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/Mezen/config.cpp -o CMakeFiles/OPESY.dir/config.cpp.s
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/CSOPESY/Memory/config.cpp -o CMakeFiles/OPESY.dir/config.cpp.s
 
 CMakeFiles/OPESY.dir/console.cpp.o: CMakeFiles/OPESY.dir/flags.make
-CMakeFiles/OPESY.dir/console.cpp.o: /Users/mez/Prayers/Mezen/console.cpp
+CMakeFiles/OPESY.dir/console.cpp.o: /Users/mez/Prayers/CSOPESY/Memory/console.cpp
 CMakeFiles/OPESY.dir/console.cpp.o: CMakeFiles/OPESY.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/Mezen/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/OPESY.dir/console.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/console.cpp.o -MF CMakeFiles/OPESY.dir/console.cpp.o.d -o CMakeFiles/OPESY.dir/console.cpp.o -c /Users/mez/Prayers/Mezen/console.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/OPESY.dir/console.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/console.cpp.o -MF CMakeFiles/OPESY.dir/console.cpp.o.d -o CMakeFiles/OPESY.dir/console.cpp.o -c /Users/mez/Prayers/CSOPESY/Memory/console.cpp
 
 CMakeFiles/OPESY.dir/console.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/OPESY.dir/console.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/Mezen/console.cpp > CMakeFiles/OPESY.dir/console.cpp.i
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/CSOPESY/Memory/console.cpp > CMakeFiles/OPESY.dir/console.cpp.i
 
 CMakeFiles/OPESY.dir/console.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/OPESY.dir/console.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/Mezen/console.cpp -o CMakeFiles/OPESY.dir/console.cpp.s
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/CSOPESY/Memory/console.cpp -o CMakeFiles/OPESY.dir/console.cpp.s
 
 CMakeFiles/OPESY.dir/memory.cpp.o: CMakeFiles/OPESY.dir/flags.make
-CMakeFiles/OPESY.dir/memory.cpp.o: /Users/mez/Prayers/Mezen/memory.cpp
+CMakeFiles/OPESY.dir/memory.cpp.o: /Users/mez/Prayers/CSOPESY/Memory/memory.cpp
 CMakeFiles/OPESY.dir/memory.cpp.o: CMakeFiles/OPESY.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/Mezen/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/OPESY.dir/memory.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/memory.cpp.o -MF CMakeFiles/OPESY.dir/memory.cpp.o.d -o CMakeFiles/OPESY.dir/memory.cpp.o -c /Users/mez/Prayers/Mezen/memory.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/OPESY.dir/memory.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/memory.cpp.o -MF CMakeFiles/OPESY.dir/memory.cpp.o.d -o CMakeFiles/OPESY.dir/memory.cpp.o -c /Users/mez/Prayers/CSOPESY/Memory/memory.cpp
 
 CMakeFiles/OPESY.dir/memory.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/OPESY.dir/memory.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/Mezen/memory.cpp > CMakeFiles/OPESY.dir/memory.cpp.i
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/CSOPESY/Memory/memory.cpp > CMakeFiles/OPESY.dir/memory.cpp.i
 
 CMakeFiles/OPESY.dir/memory.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/OPESY.dir/memory.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/Mezen/memory.cpp -o CMakeFiles/OPESY.dir/memory.cpp.s
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/CSOPESY/Memory/memory.cpp -o CMakeFiles/OPESY.dir/memory.cpp.s
 
 CMakeFiles/OPESY.dir/process.cpp.o: CMakeFiles/OPESY.dir/flags.make
-CMakeFiles/OPESY.dir/process.cpp.o: /Users/mez/Prayers/Mezen/process.cpp
+CMakeFiles/OPESY.dir/process.cpp.o: /Users/mez/Prayers/CSOPESY/Memory/process.cpp
 CMakeFiles/OPESY.dir/process.cpp.o: CMakeFiles/OPESY.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/Mezen/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/OPESY.dir/process.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/process.cpp.o -MF CMakeFiles/OPESY.dir/process.cpp.o.d -o CMakeFiles/OPESY.dir/process.cpp.o -c /Users/mez/Prayers/Mezen/process.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/OPESY.dir/process.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/process.cpp.o -MF CMakeFiles/OPESY.dir/process.cpp.o.d -o CMakeFiles/OPESY.dir/process.cpp.o -c /Users/mez/Prayers/CSOPESY/Memory/process.cpp
 
 CMakeFiles/OPESY.dir/process.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/OPESY.dir/process.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/Mezen/process.cpp > CMakeFiles/OPESY.dir/process.cpp.i
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/CSOPESY/Memory/process.cpp > CMakeFiles/OPESY.dir/process.cpp.i
 
 CMakeFiles/OPESY.dir/process.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/OPESY.dir/process.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/Mezen/process.cpp -o CMakeFiles/OPESY.dir/process.cpp.s
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/CSOPESY/Memory/process.cpp -o CMakeFiles/OPESY.dir/process.cpp.s
 
 CMakeFiles/OPESY.dir/scheduler.cpp.o: CMakeFiles/OPESY.dir/flags.make
-CMakeFiles/OPESY.dir/scheduler.cpp.o: /Users/mez/Prayers/Mezen/scheduler.cpp
+CMakeFiles/OPESY.dir/scheduler.cpp.o: /Users/mez/Prayers/CSOPESY/Memory/scheduler.cpp
 CMakeFiles/OPESY.dir/scheduler.cpp.o: CMakeFiles/OPESY.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/Mezen/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/OPESY.dir/scheduler.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/scheduler.cpp.o -MF CMakeFiles/OPESY.dir/scheduler.cpp.o.d -o CMakeFiles/OPESY.dir/scheduler.cpp.o -c /Users/mez/Prayers/Mezen/scheduler.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/OPESY.dir/scheduler.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/scheduler.cpp.o -MF CMakeFiles/OPESY.dir/scheduler.cpp.o.d -o CMakeFiles/OPESY.dir/scheduler.cpp.o -c /Users/mez/Prayers/CSOPESY/Memory/scheduler.cpp
 
 CMakeFiles/OPESY.dir/scheduler.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/OPESY.dir/scheduler.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/Mezen/scheduler.cpp > CMakeFiles/OPESY.dir/scheduler.cpp.i
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/CSOPESY/Memory/scheduler.cpp > CMakeFiles/OPESY.dir/scheduler.cpp.i
 
 CMakeFiles/OPESY.dir/scheduler.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/OPESY.dir/scheduler.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/Mezen/scheduler.cpp -o CMakeFiles/OPESY.dir/scheduler.cpp.s
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/CSOPESY/Memory/scheduler.cpp -o CMakeFiles/OPESY.dir/scheduler.cpp.s
 
 # Object files for target OPESY
 OPESY_OBJECTS = \
@@ -160,7 +160,7 @@ OPESY: CMakeFiles/OPESY.dir/process.cpp.o
 OPESY: CMakeFiles/OPESY.dir/scheduler.cpp.o
 OPESY: CMakeFiles/OPESY.dir/build.make
 OPESY: CMakeFiles/OPESY.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/mez/Prayers/Mezen/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable OPESY"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable OPESY"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/OPESY.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -172,6 +172,6 @@ CMakeFiles/OPESY.dir/clean:
 .PHONY : CMakeFiles/OPESY.dir/clean
 
 CMakeFiles/OPESY.dir/depend:
-	cd /Users/mez/Prayers/Mezen/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/mez/Prayers/Mezen /Users/mez/Prayers/Mezen /Users/mez/Prayers/Mezen/build /Users/mez/Prayers/Mezen/build /Users/mez/Prayers/Mezen/build/CMakeFiles/OPESY.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /Users/mez/Prayers/CSOPESY/Memory/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/mez/Prayers/CSOPESY/Memory /Users/mez/Prayers/CSOPESY/Memory /Users/mez/Prayers/CSOPESY/Memory/build /Users/mez/Prayers/CSOPESY/Memory/build /Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles/OPESY.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/OPESY.dir/depend
 

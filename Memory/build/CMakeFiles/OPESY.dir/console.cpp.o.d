@@ -1,5 +1,6 @@
-CMakeFiles/OPESY.dir/console.cpp.o: /Users/mez/Prayers/Mezen/console.cpp \
-  /Users/mez/Prayers/Mezen/headerFiles/config.h \
+CMakeFiles/OPESY.dir/console.cpp.o: \
+  /Users/mez/Prayers/CSOPESY/Memory/console.cpp \
+  /Users/mez/Prayers/CSOPESY/Memory/headerFiles/config.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/string \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__algorithm/max.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__algorithm/comp.h \
@@ -793,12 +794,12 @@ CMakeFiles/OPESY.dir/console.cpp.o: /Users/mez/Prayers/Mezen/console.cpp \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__filesystem/u8path.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/sstream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/iostream \
-  /Users/mez/Prayers/Mezen/headerFiles/console.h \
-  /Users/mez/Prayers/Mezen/headerFiles/process.h \
+  /Users/mez/Prayers/CSOPESY/Memory/headerFiles/console.h \
+  /Users/mez/Prayers/CSOPESY/Memory/headerFiles/process.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/set \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__tree \
-  /Users/mez/Prayers/Mezen/headerFiles/scheduler.h \
-  /Users/mez/Prayers/Mezen/headerFiles/memory.h \
+  /Users/mez/Prayers/CSOPESY/Memory/headerFiles/scheduler.h \
+  /Users/mez/Prayers/CSOPESY/Memory/headerFiles/memory.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/thread \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/condition_variable \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/queue \

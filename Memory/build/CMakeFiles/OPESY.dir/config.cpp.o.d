@@ -1,5 +1,6 @@
-CMakeFiles/OPESY.dir/config.cpp.o: /Users/mez/Prayers/Mezen/config.cpp \
-  /Users/mez/Prayers/Mezen/headerFiles/config.h \
+CMakeFiles/OPESY.dir/config.cpp.o: \
+  /Users/mez/Prayers/CSOPESY/Memory/config.cpp \
+  /Users/mez/Prayers/CSOPESY/Memory/headerFiles/config.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/string \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__algorithm/max.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__algorithm/comp.h \

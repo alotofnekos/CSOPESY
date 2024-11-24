@@ -8,11 +8,11 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/mez/Prayers/Mezen/config.cpp" "CMakeFiles/OPESY.dir/config.cpp.o" "gcc" "CMakeFiles/OPESY.dir/config.cpp.o.d"
-  "/Users/mez/Prayers/Mezen/console.cpp" "CMakeFiles/OPESY.dir/console.cpp.o" "gcc" "CMakeFiles/OPESY.dir/console.cpp.o.d"
-  "/Users/mez/Prayers/Mezen/memory.cpp" "CMakeFiles/OPESY.dir/memory.cpp.o" "gcc" "CMakeFiles/OPESY.dir/memory.cpp.o.d"
-  "/Users/mez/Prayers/Mezen/process.cpp" "CMakeFiles/OPESY.dir/process.cpp.o" "gcc" "CMakeFiles/OPESY.dir/process.cpp.o.d"
-  "/Users/mez/Prayers/Mezen/scheduler.cpp" "CMakeFiles/OPESY.dir/scheduler.cpp.o" "gcc" "CMakeFiles/OPESY.dir/scheduler.cpp.o.d"
+  "/Users/mez/Prayers/CSOPESY/Memory/config.cpp" "CMakeFiles/OPESY.dir/config.cpp.o" "gcc" "CMakeFiles/OPESY.dir/config.cpp.o.d"
+  "/Users/mez/Prayers/CSOPESY/Memory/console.cpp" "CMakeFiles/OPESY.dir/console.cpp.o" "gcc" "CMakeFiles/OPESY.dir/console.cpp.o.d"
+  "/Users/mez/Prayers/CSOPESY/Memory/memory.cpp" "CMakeFiles/OPESY.dir/memory.cpp.o" "gcc" "CMakeFiles/OPESY.dir/memory.cpp.o.d"
+  "/Users/mez/Prayers/CSOPESY/Memory/process.cpp" "CMakeFiles/OPESY.dir/process.cpp.o" "gcc" "CMakeFiles/OPESY.dir/process.cpp.o.d"
+  "/Users/mez/Prayers/CSOPESY/Memory/scheduler.cpp" "CMakeFiles/OPESY.dir/scheduler.cpp.o" "gcc" "CMakeFiles/OPESY.dir/scheduler.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

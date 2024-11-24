@@ -1,5 +1,6 @@
-CMakeFiles/OPESY.dir/memory.cpp.o: /Users/mez/Prayers/Mezen/memory.cpp \
-  /Users/mez/Prayers/Mezen/headerFiles/memory.h \
+CMakeFiles/OPESY.dir/memory.cpp.o: \
+  /Users/mez/Prayers/CSOPESY/Memory/memory.cpp \
+  /Users/mez/Prayers/CSOPESY/Memory/headerFiles/memory.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/vector \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__algorithm/copy.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__algorithm/copy_move_common.h \

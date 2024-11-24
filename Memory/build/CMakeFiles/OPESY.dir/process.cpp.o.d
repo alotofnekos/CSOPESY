@@ -1,5 +1,6 @@
-CMakeFiles/OPESY.dir/process.cpp.o: /Users/mez/Prayers/Mezen/process.cpp \
-  /Users/mez/Prayers/Mezen/headerFiles/process.h \
+CMakeFiles/OPESY.dir/process.cpp.o: \
+  /Users/mez/Prayers/CSOPESY/Memory/process.cpp \
+  /Users/mez/Prayers/CSOPESY/Memory/headerFiles/process.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__assert \
   /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/usr/include/c++/v1/__config \
