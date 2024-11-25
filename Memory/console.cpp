@@ -65,6 +65,45 @@ void console::printReport() {
     std::cout << "-----------------------------------------------------------\n";
 }
 
+void console::printProcessSMI() {
+    std::cout << "-----------------------------------------------------------\n";
+    std::cout << "||    PROCESS-SMI V01.00         DRIVER VERSION: 1.00    ||\n";
+    std::cout << "-----------------------------------------------------------\n";
+    int activeCores = 0;
+    int inactiveCores = 0;
+    int totalMemoryUsed = 0;
+    for (const auto& core : *cores)
+    {
+        if (core.assigned == false)
+        {
+            inactiveCores++;
+        }
+        else
+        {
+            activeCores++;
+            totalMemoryUsed = totalMemoryUsed + core.process_block->getMemorySize();
+        }
+    }
+
+    int util = (static_cast<double>(activeCores) / (activeCores + inactiveCores)) * 100;
+    int memUtil = (static_cast<double>(totalMemoryUsed) / (consoleScheduler->getMaxOverallMemory())) * 100;
+    std::cout << "CPU utiliziation: " << util << "%";
+    std::cout << "\nMemory Usage: " << totalMemoryUsed <<"MiB / " << consoleScheduler->getMaxOverallMemory() <<"MiB";
+    std::cout << "\nMemory Utilization: " << memUtil << "%\n";
+    std::cout << "-----------------------------------------------------------\n";
+
+    std::cout << "\nRunning Processes and Memory Usage: \n";
+
+    std::cout << "-----------------------------------------------------------\n";
+    for (const auto& core : *cores)
+    {
+        if (core.assigned == true)
+        {
+            std::cout << core.process_block->getName() << "\t" << core.process_block->getMemorySize() << "MiB\n";
+        }
+    }
+}
+
 void console::interpreter(const std::string &command) {
     if (!initialized && command != "initialize" && command != "exit")
     {
@@ -110,6 +149,9 @@ void console::interpreter(const std::string &command) {
         } else if (command == "screen -ls")
         {
             printReport();
+        }else if (command == "process-smi")
+        { 
+            printProcessSMI();
         } else if (command == "exit")
         {
             exit(0);
