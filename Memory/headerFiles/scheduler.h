@@ -54,4 +54,5 @@ public:
     void RR(int index);
     void generateReport();
     std::vector<core> *getCores();
+    int getMaxOverallMemory();
 };
