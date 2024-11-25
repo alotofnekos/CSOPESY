@@ -214,3 +214,7 @@ void scheduler::generateReport() {
 std::vector<core> *scheduler::getCores() {
     return &cores; 
 }
+
+int scheduler::getMaxOverallMemory() {
+    return max_overall_memory; 
+}
