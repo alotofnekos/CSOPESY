@@ -16,6 +16,7 @@ public:
 
     void displayBanner(); 
     void printReport();
+    void printProcessSMI();
     void interpreter(const std::string &command);
     void start();
 
