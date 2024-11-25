@@ -1,6 +1,6 @@
 #include "headerFiles/config.h"
 #include "headerFiles/console.h"
-#include "headerFiles/process.h"
+#include "headerFiles/process_block.h"
 #include "headerFiles/scheduler.h"
 #include <cstdlib>
 #include <iomanip>
@@ -49,17 +49,17 @@ void console::printReport() {
     {
         if (core.assigned == true)
         {
-            std::cout << core.process->getName() << "\t(" << std::put_time(std::localtime(&core.process->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Core: " << core.process->getCore() << "\t " << core.process->getExecutedInstructions() << "/" << core.process->getTotalInstructions() << "\n";
+            std::cout << core.process_block->getName() << "\t(" << std::put_time(std::localtime(&core.process_block->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Core: " << core.process_block->getCore() << "\t " << core.process_block->getExecutedInstructions() << "/" << core.process_block->getTotalInstructions() << "\n";
         }
     }
     
     std::cout << "\n\nFinished Processes: \n";
 
-    for (const auto &process : *processes)
+    for (const auto &process_block : *processes)
     {
-        if (process->getDone() == true)
+        if (process_block->getDone() == true)
         {
-            std::cout << process->getName() << "\t (" << std::put_time(std::localtime(&process->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Status: Finished" << "\t" << process->getExecutedInstructions() << "/" << process->getTotalInstructions() << "\n";
+            std::cout << process_block->getName() << "\t (" << std::put_time(std::localtime(&process_block->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Status: Finished" << "\t" << process_block->getExecutedInstructions() << "/" << process_block->getTotalInstructions() << "\n";
         }    
     }
     std::cout << "-----------------------------------------------------------\n";
