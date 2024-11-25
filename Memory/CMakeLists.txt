@@ -10,7 +10,7 @@ set(SOURCES
     config.cpp
     console.cpp
     memory.cpp
-    process.cpp
+    process_block.cpp
     scheduler.cpp
 )
 
