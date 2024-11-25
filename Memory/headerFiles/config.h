@@ -17,7 +17,8 @@ private:
     int delays_per_exec;
     int max_overall_memory;
     int memory_per_frame;
-    int memory_per_process;
+    int min_mem_per_proc;
+    int max_mem_per_proc;
 
 public:
     config();
@@ -33,7 +34,8 @@ public:
     int getDelaysPerExec() const;
     int getMaxOverallMemory() const;
     int getMemoryPerFrame() const;
-    int getMemoryPerProcess() const;
+    int getMinMemoryPerProcess() const;
+    int getMaxMemoryPerProcess() const;
 };
 
 
