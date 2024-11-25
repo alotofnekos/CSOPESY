@@ -22,6 +22,13 @@ void process_block::setTotalInstructions(int instructions) {
     totalInstructions = instructions;
 } 
 
+int  process_block::getMemorySize() const {
+    return memorySize;
+}
+void process_block::setMemorySize(int memory) {
+    memorySize = memory;
+}
+
 int process_block::getCore() const {
     return core; 
 }
