@@ -83,12 +83,17 @@ void console::interpreter(const std::string &command) {
     } else if (command == "initialize")
     {
         config config;
-        config.initializeConfig(); 
-        consoleScheduler = new scheduler(config, processes); 
-        config.displayConfig(); 
-        initialized = true; 
-        this->cores = consoleScheduler->getCores(); 
-        consoleScheduler->initializeCores(); 
+        if (config.initializeConfig() == true) {
+            consoleScheduler = new scheduler(config, processes);
+            config.displayConfig();
+            initialized = true;
+            this->cores = consoleScheduler->getCores();
+            consoleScheduler->initializeCores();
+        }
+        else {
+            std::cout << "Initialization failed. Check config.txt.\n";
+        }
+
     } else if (initialized)
     {
         if (command == "scheduler-test")
