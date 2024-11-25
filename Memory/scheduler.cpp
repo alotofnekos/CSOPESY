@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <cmath>
 
 scheduler::scheduler(config config, std::vector<process_block*> *processes) : memory(config.getMaxOverallMemory(), config.getMemoryPerFrame(), config.getMinMemoryPerProcess()) {
     num_cpu = config.getNumCPU(); 
@@ -16,6 +17,10 @@ scheduler::scheduler(config config, std::vector<process_block*> *processes) : me
     min_ins = config.getMinIns();
     max_ins = config.getMaxIns();
     delays_per_exec = config.getDelaysPerExec();
+    min_mem_per_proc = config.getMinMemoryPerProcess();
+    max_mem_per_proc = config.getMaxMemoryPerProcess();
+    memory_per_frame = config.getMemoryPerFrame();
+    max_overall_memory = config.getMaxOverallMemory();
     this->processes = processes;
 
     cores.resize(num_cpu);
@@ -58,6 +63,26 @@ void scheduler::setGenerateProcesses(bool status) {
     generateProcesses = status; 
 }
 
+int scheduler::setRandMemorySize() {
+    int memory;
+    int lowerBound = ceil(log2(min_mem_per_proc));  
+    int upperBound = floor(log2(max_mem_per_proc)); 
+
+    // Generate all powers of 2 in the range [min, max]
+    std::vector<int> powersOfTwo;
+    for (int i = lowerBound; i <= upperBound; ++i) {
+        powersOfTwo.push_back(1 << i); // 1 << i is the same as 2^i
+    }
+    if (powersOfTwo.empty()) {
+        std::cerr << "No power of 2 found in range." << std::endl;
+        return -1; // Handle the case where no valid power of 2 is found
+    }
+
+    // Randomly select a power of 2
+    int randomIndex = rand() % powersOfTwo.size();
+    return powersOfTwo[randomIndex];
+}
+
 void scheduler::generateProcessesFunc() {
     int counter = 0;
 
@@ -67,7 +92,7 @@ void scheduler::generateProcessesFunc() {
         counter++; 
         proc->setTotalInstructions(rand() % (max_ins - min_ins + 1) + min_ins);
         proc->setWaiting(true); 
-
+        proc->setMemorySize(setRandMemorySize());
         {
             std::lock_guard<std::mutex> lock(mtx);
             processes->push_back(proc);
