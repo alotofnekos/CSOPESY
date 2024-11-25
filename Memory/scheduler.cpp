@@ -1,5 +1,5 @@
 #include "headerFiles/scheduler.h"
-#include "headerFiles/process.h"
+#include "headerFiles/process_block.h"
 #include <chrono>
 #include <cstdlib>
 #include <iomanip>
@@ -8,7 +8,7 @@
 #include <string>
 #include <thread>
 
-scheduler::scheduler(config config, std::vector<process*> *processes) : memory(config.getMaxOverallMemory(), config.getMemoryPerFrame(), config.getMemoryPerProcess()) {
+scheduler::scheduler(config config, std::vector<process_block*> *processes) : memory(config.getMaxOverallMemory(), config.getMemoryPerFrame(), config.getMemoryPerProcess()) {
     num_cpu = config.getNumCPU(); 
     schedulerType = config.getScheduler();
     quantum_cycles = config.getQuantumCycles();
@@ -23,7 +23,7 @@ scheduler::scheduler(config config, std::vector<process*> *processes) : memory(c
     {
         cores[i].index = i;
         cores[i].thread = nullptr;
-        cores[i].process = nullptr;
+        cores[i].process_block = nullptr;
         cores[i].assigned = false; 
     }
 }
@@ -46,10 +46,10 @@ void scheduler::initializeCores() {
     }
 }
 
-void scheduler::queueProcess(process *process) {
+void scheduler::queueProcess(process_block *process_block) {
     {
         std::lock_guard<std::mutex> lock(mtx);
-        readyQueue.push(process);
+        readyQueue.push(process_block);
     }
     cond.notify_one();
 }
@@ -63,7 +63,7 @@ void scheduler::generateProcessesFunc() {
 
     while (generateProcesses)
     {
-        auto *proc = new process("Process_" + std::to_string(counter));
+        auto *proc = new process_block("Process_" + std::to_string(counter));
         counter++; 
         proc->setTotalInstructions(rand() % (max_ins - min_ins + 1) + min_ins);
         proc->setWaiting(true); 
@@ -91,7 +91,7 @@ void scheduler::FCFS(int index) {
 }
 
 void scheduler::RR(int index) {
-    process *proc = nullptr;
+    process_block *proc = nullptr;
 
     while (true)
     {
@@ -124,7 +124,7 @@ void scheduler::RR(int index) {
             
         }
 
-        cores[index].process = proc; 
+        cores[index].process_block = proc; 
         cores[index].assigned = true; 
 
         proc->setCore(index);
@@ -150,7 +150,7 @@ void scheduler::RR(int index) {
             proc->endTime = std::time(nullptr);
             proc->setRunning(false);
             proc->setDone(true);
-            cores[index].process = nullptr;
+            cores[index].process_block = nullptr;
             cores[index].assigned = false;
             memory.deallocateMemory(proc->getName()); 
             doneProcesses.push_back(proc);
@@ -162,7 +162,7 @@ void scheduler::RR(int index) {
             {
                 proc->setRunning(false);
                 proc->setWaiting(true);
-                cores[index].process = nullptr;
+                cores[index].process_block = nullptr;
                 cores[index].assigned = false;
                 queueProcess(proc); 
                 proc = nullptr; 
