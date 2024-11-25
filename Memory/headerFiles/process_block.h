@@ -3,7 +3,7 @@
 #include <set> 
 #include <ctime> 
 
-class process
+class process_block
 {
 private:
     std::string name; 
@@ -16,7 +16,7 @@ private:
     bool isWaiting = false; 
 
 public:
-    process(std::string name);
+    process_block(std::string name);
 
     std::time_t startTime = 0; 
     std::time_t endTime = 0; 
