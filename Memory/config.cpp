@@ -83,7 +83,7 @@ bool config::initializeConfig() {
         } else if (param == "max-overall-mem")
         {
             iss >> max_overall_memory;
-            if (max_overall_memory < 0 || max_overall_memory > 4294967296)
+            if (max_overall_memory < 0 || max_overall_memory > 4294967296 || (max_overall_memory & (max_overall_memory - 1)) != 0)
             {
                 std::cerr << "Error: max_overall_memory must be between 0 and 2^32 (4294967296)" << std::endl;
                 return false;
@@ -91,7 +91,7 @@ bool config::initializeConfig() {
         } else if (param == "mem-per-frame")
         {
             iss >> memory_per_frame;
-            if (memory_per_frame < 0 || memory_per_frame > 4294967296)
+            if (memory_per_frame < 0 || memory_per_frame > 4294967296 || (memory_per_frame & (memory_per_frame - 1)) != 0)
             {
                 std::cerr << "Error: memory_per_frame must be between 0 and 2^32 (4294967296)" << std::endl;
                 return false;
@@ -100,7 +100,7 @@ bool config::initializeConfig() {
         else if (param == "min-mem-per-proc")
         {
             iss >> min_mem_per_proc;
-            if (min_mem_per_proc < 0 || min_mem_per_proc > 4294967296)
+            if (min_mem_per_proc < 0 || min_mem_per_proc > 4294967296 || (min_mem_per_proc & (min_mem_per_proc - 1)) != 0)
             {
                 std::cerr << "Error: min_mem_per_proc must be between 0 and 2^32 (4294967296)" << std::endl;
                 return false;
@@ -109,7 +109,7 @@ bool config::initializeConfig() {
         else if (param == "max-mem-per-proc")
         {
             iss >> max_mem_per_proc;
-            if (max_mem_per_proc < 0 || max_mem_per_proc > 4294967296)
+            if (max_mem_per_proc < 0 || max_mem_per_proc > 4294967296 || (max_mem_per_proc & (max_mem_per_proc - 1)) != 0)
             {
                 std::cerr << "Error: max_mem_per_proc must be between 0 and 2^32 (4294967296)" << std::endl;
                 return false;
