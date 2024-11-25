@@ -29,6 +29,10 @@ private:
     int min_ins;
     int max_ins;
     int delays_per_exec;
+    int min_mem_per_proc;
+    int max_mem_per_proc;
+    int memory_per_frame;
+    int max_overall_memory;
 
     bool generateProcesses = false; 
     std::vector<process_block*> doneProcesses;
@@ -45,6 +49,7 @@ public:
     void setGenerateProcesses(bool status);
     void generateProcessesFunc(); 
     void startGenerateProcessesThread();
+    int setRandMemorySize();
     void FCFS(int index);
     void RR(int index);
     void generateReport();
