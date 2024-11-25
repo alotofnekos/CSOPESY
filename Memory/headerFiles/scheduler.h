@@ -1,6 +1,6 @@
 #pragma once
 #include "config.h"
-#include "process.h"
+#include "process_block.h"
 #include "memory.h"
 #include <mutex> 
 #include <thread> 
@@ -11,15 +11,15 @@
 struct core {
     int index; 
     std::thread *thread; 
-    process *process; 
+    process_block *process_block;
     bool assigned; 
 }; 
 
 class scheduler
 {
 private:
-    std::queue<process*> readyQueue; 
-    std::vector<process*> *processes; 
+    std::queue<process_block*> readyQueue;
+    std::vector<process_block*> *processes;
     std::vector<core> cores;
     
     int num_cpu;
@@ -31,17 +31,17 @@ private:
     int delays_per_exec;
 
     bool generateProcesses = false; 
-    std::vector<process*> doneProcesses; 
+    std::vector<process_block*> doneProcesses;
     std::mutex mtx;
     std::mutex memoryMTX; 
     std::condition_variable cond; 
     memory memory; 
 
 public:
-    scheduler(config config, std::vector<process*> *processes);
+    scheduler(config config, std::vector<process_block*> * process_block);
 
     void initializeCores();
-    void queueProcess(process *process);
+    void queueProcess(process_block *process_block);
     void setGenerateProcesses(bool status);
     void generateProcessesFunc(); 
     void startGenerateProcessesThread();
