@@ -1,5 +1,5 @@
 #pragma once
-#include "process.h"
+#include "process_block.h"
 #include "scheduler.h"
 #include <string> 
 #include <vector> 
@@ -7,7 +7,7 @@
 class console
 {
 private:
-    std::vector<process*> *processes = new std::vector<process*>;    
+    std::vector<process_block*> *processes = new std::vector<process_block*>;    
     std::vector<core> *cores; 
     scheduler *consoleScheduler; 
     bool initialized = false; 
