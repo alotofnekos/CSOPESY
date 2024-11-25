@@ -8,7 +8,7 @@
 #include <string>
 #include <thread>
 
-scheduler::scheduler(config config, std::vector<process_block*> *processes) : memory(config.getMaxOverallMemory(), config.getMemoryPerFrame(), config.getMemoryPerProcess()) {
+scheduler::scheduler(config config, std::vector<process_block*> *processes) : memory(config.getMaxOverallMemory(), config.getMemoryPerFrame(), config.getMinMemoryPerProcess()) {
     num_cpu = config.getNumCPU(); 
     schedulerType = config.getScheduler();
     quantum_cycles = config.getQuantumCycles();
