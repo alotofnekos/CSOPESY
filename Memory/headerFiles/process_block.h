@@ -10,6 +10,7 @@ private:
     int core = -1; 
     int executedInstructions; 
     int totalInstructions; 
+    int memorySize;
 
     bool isDone = false;
     bool isRunning = false;
@@ -28,6 +29,9 @@ public:
 
     int getTotalInstructions() const; 
     void setTotalInstructions(int instructions); 
+
+    int getMemorySize() const;
+    void setMemorySize(int instructions);
 
     int getCore() const; 
     void setCore(int core); 
