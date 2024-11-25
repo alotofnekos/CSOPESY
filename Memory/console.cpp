@@ -3,6 +3,8 @@
 #include "headerFiles/process.h"
 #include "headerFiles/scheduler.h"
 #include <cstdlib>
+#include <iomanip>
+
 
 console::console() : consoleScheduler(nullptr), initialized(false) {}
 
