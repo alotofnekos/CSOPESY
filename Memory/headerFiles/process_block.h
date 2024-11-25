@@ -1,47 +1,63 @@
-#pragma once
-#include <iostream>
-#include <set> 
-#include <ctime> 
+#include "headerFiles/process_block.h"
 
-class process_block
-{
-private:
-    std::string name; 
-    int core = -1; 
-    int executedInstructions; 
-    int totalInstructions; 
-    int memorySize;
+process_block::process_block(std::string name) : name(std::move(name)) {};
 
-    bool isDone = false;
-    bool isRunning = false;
-    bool isWaiting = false; 
+std::string process_block::getName() const {
+    return name; 
+}
 
-public:
-    process_block(std::string name);
+int process_block::getExecutedInstructions() const {
+    return executedInstructions; 
+}
 
-    std::time_t startTime = 0; 
-    std::time_t endTime = 0; 
+void process_block::setExecutedInstructions(int instructions) {
+    executedInstructions = instructions;
+}
 
-    std::string getName() const; 
+int process_block::getTotalInstructions() const {
+    return totalInstructions;
+}
 
-    int getExecutedInstructions() const; 
-    void setExecutedInstructions(int instructions);
+void process_block::setTotalInstructions(int instructions) {
+    totalInstructions = instructions;
+} 
 
-    int getTotalInstructions() const; 
-    void setTotalInstructions(int instructions); 
+int  process_block::getMemorySize() const {
+    return memorySize;
+}
 
-    int getMemorySize() const;
-    void setMemorySize(int instructions);
+void process_block::setMemorySize(int memory) {
+    memorySize = memory;
+}
 
-    int getCore() const; 
-    void setCore(int core); 
+int process_block::getCore() const {
+    return core; 
+}
 
-    bool getDone() const; 
-    void setDone(bool status); 
+void process_block::setCore(int core) {
+    this->core = core;
+}
 
-    bool getRunning() const; 
-    void setRunning(bool status);
+bool process_block::getDone() const {
+    return isDone;
+}
 
-    bool getWaiting() const; 
-    void setWaiting(bool status);
-};
+void process_block::setDone(bool status) {
+    isDone = status;
+}
+
+bool process_block::getRunning() const {
+    return isRunning;
+}
+
+void process_block::setRunning(bool status) {
+    isRunning = status; 
+}
+
+bool process_block::getWaiting() const {
+    return isWaiting; 
+}
+
+void process_block::setWaiting(bool status) {
+    isWaiting = status; 
+}
