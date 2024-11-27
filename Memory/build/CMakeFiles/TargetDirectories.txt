@@ -1,3 +1,0 @@
-/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles/OPESY.dir
-/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles/edit_cache.dir
-/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles/rebuild_cache.dir
