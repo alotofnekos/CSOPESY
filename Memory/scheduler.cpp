@@ -122,11 +122,12 @@ void scheduler::RR(int index) {
         if (proc == nullptr)
         {
             std::unique_lock<std::mutex> lock(mtx);
-            if (readyQueue.empty()) {
+            while (readyQueue.empty()) {
                 cores[index].idleTicks++; 
+                cond.wait_for(lock, std::chrono::milliseconds(500));
             }
 
-            cond.wait(lock, [this] { return !readyQueue.empty(); });
+            //cond.wait(lock, [this] { return !readyQueue.empty(); });
 
             proc = readyQueue.front();
             if (proc == nullptr)
