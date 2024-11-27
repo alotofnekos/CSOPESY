@@ -164,7 +164,7 @@ void scheduler::RR(int index) {
 
         for (int i = 0; i < quantum; i++)
         {
-            proc->setExecutedInstructions(proc->getExecutedInstructions() + i + 1);
+            proc->setExecutedInstructions(proc->getExecutedInstructions() + 1);
             std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500));
         }
         
