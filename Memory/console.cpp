@@ -45,6 +45,14 @@ void console::printReport() {
 
     std::cout << "\n\nRunning Processes: \n";
 
+    // for (const auto &process_block : *processes)
+    // {
+    //     if (process_block->getDone() == false)
+    //     {
+    //         std::cout << process_block->getName() << "\t(" << std::put_time(std::localtime(&process_block->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Core: " << process_block->getCore() << "\t " << process_block->getExecutedInstructions() << "/" << process_block->getTotalInstructions() << "\n";
+    //     }
+    // }
+    
     for (const auto &core : *cores)
     {
         if (core.assigned == true)
@@ -139,6 +147,7 @@ void console::interpreter(const std::string &command) {
         {
             consoleScheduler->setGenerateProcesses(true); 
             consoleScheduler->startGenerateProcessesThread(); 
+            consoleScheduler->generateReportThread();
         } else if (command == "scheduler-stop")
         {
             consoleScheduler->setGenerateProcesses(false); 

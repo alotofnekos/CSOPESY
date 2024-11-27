@@ -201,29 +201,29 @@ memory.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/OPESY.dir/build.make CMakeFiles/OPESY.dir/memory.cpp.s
 .PHONY : memory.cpp.s
 
-process.o: process.cpp.o
-.PHONY : process.o
+process_block.o: process_block.cpp.o
+.PHONY : process_block.o
 
 # target to build an object file
-process.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OPESY.dir/build.make CMakeFiles/OPESY.dir/process.cpp.o
-.PHONY : process.cpp.o
+process_block.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OPESY.dir/build.make CMakeFiles/OPESY.dir/process_block.cpp.o
+.PHONY : process_block.cpp.o
 
-process.i: process.cpp.i
-.PHONY : process.i
+process_block.i: process_block.cpp.i
+.PHONY : process_block.i
 
 # target to preprocess a source file
-process.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OPESY.dir/build.make CMakeFiles/OPESY.dir/process.cpp.i
-.PHONY : process.cpp.i
+process_block.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OPESY.dir/build.make CMakeFiles/OPESY.dir/process_block.cpp.i
+.PHONY : process_block.cpp.i
 
-process.s: process.cpp.s
-.PHONY : process.s
+process_block.s: process_block.cpp.s
+.PHONY : process_block.s
 
 # target to generate assembly for a file
-process.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/OPESY.dir/build.make CMakeFiles/OPESY.dir/process.cpp.s
-.PHONY : process.cpp.s
+process_block.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/OPESY.dir/build.make CMakeFiles/OPESY.dir/process_block.cpp.s
+.PHONY : process_block.cpp.s
 
 scheduler.o: scheduler.cpp.o
 .PHONY : scheduler.o
@@ -267,9 +267,9 @@ help:
 	@echo "... memory.o"
 	@echo "... memory.i"
 	@echo "... memory.s"
-	@echo "... process.o"
-	@echo "... process.i"
-	@echo "... process.s"
+	@echo "... process_block.o"
+	@echo "... process_block.i"
+	@echo "... process_block.s"
 	@echo "... scheduler.o"
 	@echo "... scheduler.i"
 	@echo "... scheduler.s"

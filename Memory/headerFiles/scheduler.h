@@ -53,6 +53,7 @@ public:
     void FCFS(int index);
     void RR(int index);
     void generateReport();
+    void generateReportThread();
     std::vector<core> *getCores();
     int getMaxOverallMemory();
 };

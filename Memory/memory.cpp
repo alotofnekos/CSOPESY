@@ -126,7 +126,7 @@ void memory::generateReport(const std::string &file) {
     time_t t = std::time(nullptr);
     report << "Timestamp: " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << std::endl; 
     report << "Number of processes in memory: " << std::count_if(memoryBlocks.begin(), memoryBlocks.end(), [](const memoryBlock &block) {return !block.proc.empty();}) << std::endl;
-        std::cout << "Total external fragmentation: " << getExternalFragmentation() << " KB" << std::endl; 
+    report << "Total external fragmentation: " << getExternalFragmentation() << " KB" << std::endl; 
     report<< "Memory Layout: " << std::endl; 
     report<< "----start---- = 0" << std::endl;
     for (const auto &block : memoryBlocks)

@@ -1,0 +1,17 @@
+Timestamp: 2024-11-27 15:48:52
+Number of processes in memory: 4
+Memory Layout: 
+----start---- = 0
+0
+Process_0
+4095
+4096
+Process_1
+8191
+8192
+Process_2
+12287
+12288
+Process_3
+16383
+----end---- = 16384

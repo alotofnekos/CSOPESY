@@ -114,19 +114,19 @@ CMakeFiles/OPESY.dir/memory.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/OPESY.dir/memory.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/CSOPESY/Memory/memory.cpp -o CMakeFiles/OPESY.dir/memory.cpp.s
 
-CMakeFiles/OPESY.dir/process.cpp.o: CMakeFiles/OPESY.dir/flags.make
-CMakeFiles/OPESY.dir/process.cpp.o: /Users/mez/Prayers/CSOPESY/Memory/process.cpp
-CMakeFiles/OPESY.dir/process.cpp.o: CMakeFiles/OPESY.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/OPESY.dir/process.cpp.o"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/process.cpp.o -MF CMakeFiles/OPESY.dir/process.cpp.o.d -o CMakeFiles/OPESY.dir/process.cpp.o -c /Users/mez/Prayers/CSOPESY/Memory/process.cpp
+CMakeFiles/OPESY.dir/process_block.cpp.o: CMakeFiles/OPESY.dir/flags.make
+CMakeFiles/OPESY.dir/process_block.cpp.o: /Users/mez/Prayers/CSOPESY/Memory/process_block.cpp
+CMakeFiles/OPESY.dir/process_block.cpp.o: CMakeFiles/OPESY.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/mez/Prayers/CSOPESY/Memory/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/OPESY.dir/process_block.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/OPESY.dir/process_block.cpp.o -MF CMakeFiles/OPESY.dir/process_block.cpp.o.d -o CMakeFiles/OPESY.dir/process_block.cpp.o -c /Users/mez/Prayers/CSOPESY/Memory/process_block.cpp
 
-CMakeFiles/OPESY.dir/process.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/OPESY.dir/process.cpp.i"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/CSOPESY/Memory/process.cpp > CMakeFiles/OPESY.dir/process.cpp.i
+CMakeFiles/OPESY.dir/process_block.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/OPESY.dir/process_block.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/mez/Prayers/CSOPESY/Memory/process_block.cpp > CMakeFiles/OPESY.dir/process_block.cpp.i
 
-CMakeFiles/OPESY.dir/process.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/OPESY.dir/process.cpp.s"
-	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/CSOPESY/Memory/process.cpp -o CMakeFiles/OPESY.dir/process.cpp.s
+CMakeFiles/OPESY.dir/process_block.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/OPESY.dir/process_block.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/mez/Prayers/CSOPESY/Memory/process_block.cpp -o CMakeFiles/OPESY.dir/process_block.cpp.s
 
 CMakeFiles/OPESY.dir/scheduler.cpp.o: CMakeFiles/OPESY.dir/flags.make
 CMakeFiles/OPESY.dir/scheduler.cpp.o: /Users/mez/Prayers/CSOPESY/Memory/scheduler.cpp
@@ -147,7 +147,7 @@ OPESY_OBJECTS = \
 "CMakeFiles/OPESY.dir/config.cpp.o" \
 "CMakeFiles/OPESY.dir/console.cpp.o" \
 "CMakeFiles/OPESY.dir/memory.cpp.o" \
-"CMakeFiles/OPESY.dir/process.cpp.o" \
+"CMakeFiles/OPESY.dir/process_block.cpp.o" \
 "CMakeFiles/OPESY.dir/scheduler.cpp.o"
 
 # External object files for target OPESY
@@ -156,7 +156,7 @@ OPESY_EXTERNAL_OBJECTS =
 OPESY: CMakeFiles/OPESY.dir/config.cpp.o
 OPESY: CMakeFiles/OPESY.dir/console.cpp.o
 OPESY: CMakeFiles/OPESY.dir/memory.cpp.o
-OPESY: CMakeFiles/OPESY.dir/process.cpp.o
+OPESY: CMakeFiles/OPESY.dir/process_block.cpp.o
 OPESY: CMakeFiles/OPESY.dir/scheduler.cpp.o
 OPESY: CMakeFiles/OPESY.dir/build.make
 OPESY: CMakeFiles/OPESY.dir/link.txt

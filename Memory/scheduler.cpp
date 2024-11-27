@@ -105,7 +105,6 @@ void scheduler::generateProcessesFunc() {
 }
 
 void scheduler::startGenerateProcessesThread() {
-    std::cout << "starting";
     generateProcesses = true; 
     std::thread generatorThread(&scheduler::generateProcessesFunc, this);
     generatorThread.detach();
@@ -166,8 +165,7 @@ void scheduler::RR(int index) {
         for (int i = 0; i < quantum; i++)
         {
             proc->setExecutedInstructions(proc->getExecutedInstructions() + i + 1);
-            std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec + 1 * 500));
-            // std::cout << "executed instruction for process" << proc->getName() << std::endl; 
+            std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500));
         }
         
         if (proc->getExecutedInstructions() == proc->getTotalInstructions())
@@ -209,6 +207,11 @@ void scheduler::generateReport() {
         round += quantum_cycles;
         std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec + 1 * 500));
     }
+}
+
+void scheduler::generateReportThread() {
+    std::thread reportThread(&scheduler::generateReport, this);
+    reportThread.detach();
 }
 
 std::vector<core> *scheduler::getCores() {
