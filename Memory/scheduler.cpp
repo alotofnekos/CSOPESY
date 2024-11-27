@@ -122,12 +122,11 @@ void scheduler::RR(int index) {
         if (proc == nullptr)
         {
             std::unique_lock<std::mutex> lock(mtx);
-            cond.wait(lock, [this] {return !readyQueue.empty();});
-
-            if (readyQueue.empty())
-            {
-                return;
+            if (readyQueue.empty()) {
+                cores[index].idleTicks++; 
             }
+
+            cond.wait(lock, [this] { return !readyQueue.empty(); });
 
             proc = readyQueue.front();
             if (proc == nullptr)
@@ -165,6 +164,8 @@ void scheduler::RR(int index) {
         for (int i = 0; i < quantum; i++)
         {
             proc->setExecutedInstructions(proc->getExecutedInstructions() + 1);
+            cores[index].activeTicks++;
+            cores[index].idleTicks= cores[index].idleTicks+delays_per_exec-1;
             std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500));
         }
         

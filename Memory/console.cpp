@@ -112,6 +112,34 @@ void console::printProcessSMI() {
     }
 }
 
+void console::vmstat() {
+    std::cout << "-----------------------------------------------------------\n";
+    std::cout << "||               VIRTUAL MEMORY STATISTICS               ||\n";
+    std::cout << "-----------------------------------------------------------\n";
+    int idleCPUTicks = 0;
+    int activeCPUTicks = 0;
+    int totalMemoryUsed = 0;
+    for (const auto& core : *cores)
+    {
+        idleCPUTicks = idleCPUTicks + core.idleTicks;
+        activeCPUTicks = activeCPUTicks + core.activeTicks;
+        if (core.assigned == true)
+        {
+            totalMemoryUsed = totalMemoryUsed + core.process_block->getMemorySize();
+        }
+    }
+    std::cout << "\nTotal Memory: " << consoleScheduler->getMaxOverallMemory() << "MiB";
+    std::cout << "\nUsed Memory: " << totalMemoryUsed << "MiB";
+    std::cout << "\nFree Memory: " << (consoleScheduler->getMaxOverallMemory()) - totalMemoryUsed << "MiB";
+    std::cout << "\nIdle CPU Ticks: " << idleCPUTicks;
+    std::cout << "\nActive CPU Ticks: " << activeCPUTicks;
+    std::cout << "\nTotal CPU Ticks: " << activeCPUTicks + idleCPUTicks;
+    std::cout << "\nNum Paged in: " << activeCPUTicks << " (Placeholder) ";
+    std::cout << "\nNum Paged Out: " << activeCPUTicks << " (Placeholder)";
+    std::cout << "\n-----------------------------------------------------------\n";
+
+}
+
 void console::interpreter(const std::string &command) {
     if (!initialized && command != "initialize" && command != "exit")
     {
@@ -161,7 +189,13 @@ void console::interpreter(const std::string &command) {
         }else if (command == "process-smi")
         { 
             printProcessSMI();
-        } else if (command == "exit")
+        }
+        else if (command == "vmstat") {
+
+            vmstat();
+
+        }
+        else if (command == "exit")
         {
             exit(0);
         } else 

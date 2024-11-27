@@ -12,7 +12,9 @@ struct core {
     int index; 
     std::thread *thread; 
     process_block *process_block;
-    bool assigned; 
+    bool assigned;
+    int activeTicks = 0;
+    int idleTicks = 0;
 }; 
 
 class scheduler

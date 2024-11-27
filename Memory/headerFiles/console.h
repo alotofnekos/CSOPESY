@@ -17,6 +17,7 @@ public:
     void displayBanner(); 
     void printReport();
     void printProcessSMI();
+    void vmstat();
     void interpreter(const std::string &command);
     void start();
 
