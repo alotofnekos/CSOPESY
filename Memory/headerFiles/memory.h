@@ -13,6 +13,7 @@ private:
         int startAddress; 
         int endAddress; 
         std::string proc; 
+        time_t timestamp;
     };
     
     std::vector<memoryBlock> memoryBlocks;
@@ -25,6 +26,7 @@ public:
     int getExternalFragmentation();  
     void printMemory(); 
     void generateReport(const std::string &file); 
+    std::string removeOldestProcess();
 
     int max_overall_memory;
     int memory_per_frame;

@@ -197,13 +197,33 @@ void scheduler::RR(int index) {
         
         {
             std::lock_guard<std::mutex> lock(memoryMTX);
-            if (!memory.searchProc(proc->getName()) && !memory.allocateMemory(proc->getName(), memory.memory_per_process)) 
+            if (max_overall_memory = memory_per_frame)
             {
-                queueProcess(proc);
-                proc = nullptr;
-                continue;
+                if (!memory.searchProc(proc->getName())) 
+                {
+                    while (!memory.allocateMemory(proc->getName(), memory.memory_per_process))
+                    {
+                        std::string oldestProcName = memory.removeOldestProcess();
+                        auto oldestProc = std::find_if(processes->begin(), processes->end(), [oldestProcName](const process_block *proc) {return proc->getName() == oldestProcName;});
+
+                        for (auto &core : cores)
+                        {
+                            if (core.process_block == *oldestProc)
+                            {
+                                core.process_block = nullptr;
+                                core.assigned = false;
+                            }
+                        }
+
+                        (*oldestProc)->setRunning(false);
+                        (*oldestProc)->setWaiting(true);
+                        queueProcess(*oldestProc);
+                    }
+                }
+            } else
+            {
+                // TODO: Paging Allocator 
             }
-            
         }
 
         cores[index].process_block = proc; 

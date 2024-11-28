@@ -145,3 +145,10 @@ void memory::generateReport(const std::string &file) {
     report << "----end---- = " << max_overall_memory << std::endl;
     report.close(); 
 }
+
+std::string memory::removeOldestProcess() {
+    auto oldest = std::min_element(memoryBlocks.begin(), memoryBlocks.end(), [](const memoryBlock &a, const memoryBlock &b) {return a.timestamp < b.timestamp;});
+    deallocateMemory(oldest->proc);
+
+    return oldest->proc;
+}
