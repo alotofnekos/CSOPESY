@@ -143,10 +143,14 @@ void console::printProcessSMI(bool toFile) {
     out << "-----------------------------------------------------------\n";
     for (const auto& process_block : *processes)
     {
-        if ((process_block->getWaiting() == true) && !(process_block->getDone() == true) && (process_block->getExecutedInstructions() > 0))
+        if ((process_block->getWaiting() == true) &&
+            !(process_block->getDone() == true) &&
+            (process_block->getExecutedInstructions() > 0) &&
+            (consoleScheduler->procInMem(process_block)))
         {
             out << process_block->getName() << "\t" << process_block->getMemorySize() << "MiB\n";
         }
+
     }
     out << "-----------------------------------------------------------\n";
 

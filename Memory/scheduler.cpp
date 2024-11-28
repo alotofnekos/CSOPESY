@@ -238,3 +238,7 @@ process_block* scheduler::findProcessByName(const std::string& processName) cons
     }
     return nullptr; 
 }
+
+bool scheduler::procInMem(process_block* proc) {
+    return memory.searchProc(proc->getName());
+}
