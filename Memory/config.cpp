@@ -82,36 +82,44 @@ bool config::initializeConfig() {
             
         } else if (param == "max-overall-mem")
         {
-            iss >> max_overall_memory;
-            if (max_overall_memory < 0 || max_overall_memory > 4294967296 || (max_overall_memory & (max_overall_memory - 1)) != 0)
+            std::string max_overall_memory_plc;
+            iss >> max_overall_memory_plc;
+            max_overall_memory = powerOfTwo(max_overall_memory_plc);
+            if (max_overall_memory == -1)
             {
-                std::cerr << "Error: max_overall_memory must be between 0 and 2^32 (4294967296)" << std::endl;
+                std::cerr << "Error: max_overall_memory must be a power of two between 2 and 2^32. Use the format 2^n" << std::endl;
                 return false;
             }
         } else if (param == "mem-per-frame")
         {
-            iss >> memory_per_frame;
-            if (memory_per_frame < 0 || memory_per_frame > 4294967296 || (memory_per_frame & (memory_per_frame - 1)) != 0)
-            {
-                std::cerr << "Error: memory_per_frame must be between 0 and 2^32 (4294967296)" << std::endl;
+            std::string memory_per_frame_plc;
+            iss >> memory_per_frame_plc;
+            memory_per_frame = powerOfTwo(memory_per_frame_plc);
+            if (memory_per_frame == -1)
+            { 
+                std::cerr << "Error: memory_per_frame must be a power of two between 2 and 2^32. Use the format 2^n" << std::endl;
                 return false;
             }
         }
         else if (param == "min-mem-per-proc")
         {
-            iss >> min_mem_per_proc;
-            if (min_mem_per_proc < 0 || min_mem_per_proc > 4294967296 || (min_mem_per_proc & (min_mem_per_proc - 1)) != 0)
+            std::string min_mem_per_proc_plc;
+            iss >> min_mem_per_proc_plc;
+            min_mem_per_proc = powerOfTwo(min_mem_per_proc_plc);
+            if (min_mem_per_proc == -1)
             {
-                std::cerr << "Error: min_mem_per_proc must be between 0 and 2^32 (4294967296)" << std::endl;
+                std::cerr << "Error: min_mem_per_proc must be a power of two between 2 and 2^32. Use the format 2^n" << std::endl;
                 return false;
             }
         }
         else if (param == "max-mem-per-proc")
         {
-            iss >> max_mem_per_proc;
-            if (max_mem_per_proc < 0 || max_mem_per_proc > 4294967296 || (max_mem_per_proc & (max_mem_per_proc - 1)) != 0)
+            std::string max_mem_per_proc_plc;
+            iss >> max_mem_per_proc_plc;
+            max_mem_per_proc = powerOfTwo(max_mem_per_proc_plc);
+            if (max_mem_per_proc == -1)
             {
-                std::cerr << "Error: max_mem_per_proc must be between 0 and 2^32 (4294967296)" << std::endl;
+                std::cerr << "Error: max_mem_per_proc must be a power of two between 2 and 2^32. Use the format 2^n" << std::endl;
                 return false;
             }
         } else
@@ -183,4 +191,23 @@ int config::getMinMemoryPerProcess() const {
 
 int config::getMaxMemoryPerProcess() const {
     return max_mem_per_proc;
+}
+
+int config::powerOfTwo(const std::string& input) {
+    char base, caret;
+    int exponent;
+
+    // Parse the input for "2^n" format
+    std::istringstream iss(input);
+    iss >> base >> caret >> exponent;
+
+    // Validate format and content
+    if (base != '2' || caret != '^') {
+        return -1; // Invalid format
+    }
+
+    if (exponent < 0 || exponent > 31) { 
+        return -1; // Invalid exponent
+    }
+    return 1 << exponent; 
 }

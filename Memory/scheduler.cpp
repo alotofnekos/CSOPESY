@@ -118,12 +118,12 @@ void scheduler::FCFS(int index) {
         if (proc == nullptr)
         {
             std::unique_lock<std::mutex> lock(mtx);
-            cond.wait(lock, [this] {return !readyQueue.empty();});
-
-            if (readyQueue.empty())
-            {
-                return;
+            while (readyQueue.empty()) {
+                cores[index].idleTicks++; 
+                cond.wait_for(lock, std::chrono::milliseconds(500));
             }
+
+            //cond.wait(lock, [this] { return !readyQueue.empty(); });
 
             proc = readyQueue.front();
             if (proc == nullptr)
@@ -135,7 +135,7 @@ void scheduler::FCFS(int index) {
         
         {
             std::lock_guard<std::mutex> lock(memoryMTX);
-            if (!memory.searchProc(proc->getName()) && !memory.allocateMemory(proc->getName(), memory.memory_per_process)) 
+            if (!memory.searchProc(proc->getName()) && !memory.allocateMemory(proc->getName(), proc->getMemorySize())) 
             {
                 queueProcess(proc);
                 proc = nullptr;
@@ -243,7 +243,9 @@ void scheduler::RR(int index) {
         for (int i = 0; i < quantum; i++)
         {
             proc->setExecutedInstructions(proc->getExecutedInstructions() + 1);
-            std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500));
+            cores[index].activeTicks++;
+            cores[index].idleTicks = cores[index].idleTicks + delays_per_exec;
+            std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500 + 500));
         }
         
         if (proc->getExecutedInstructions() == proc->getTotalInstructions())
@@ -298,4 +300,23 @@ std::vector<core> *scheduler::getCores() {
 
 int scheduler::getMaxOverallMemory() {
     return max_overall_memory; 
+}
+
+int scheduler::getTotalMemUsed() {
+    return memory.getTotalMemoryUsed();
+}
+
+process_block* scheduler::findProcessByName(const std::string& processName) const {
+    std::mutex mtx;
+    std::lock_guard<std::mutex> guard(mtx);  
+    for (auto* proc : *processes) {
+        if (proc->getName() == processName) {
+            return proc; 
+        }
+    }
+    return nullptr; 
+}
+
+bool scheduler::procInMem(process_block* proc) {
+    return memory.searchProc(proc->getName());
 }

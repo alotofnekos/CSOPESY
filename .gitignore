@@ -1,0 +1,17 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/CSOPESY3/FileContentIndex
+/.vs/CSOPESY3/v17/ipch/AutoPCH
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
+/.vs/CSOPESY3/v17/.wsuo
+*.db
+/.vs/CSOPESY3/v17/Browse.VC.db-shm
+/.vs/CSOPESY3/v17/Browse.VC.db-wal
+/.vs/CSOPESY3/v17/Browse.VC.opendb
+/.vs/CSOPESY3/v17/DocumentLayout.json
+/.vs/ProjectSettings.json
+/.vs/CSOPESY3/v17/DocumentLayout.backup.json
+*.sqlite-journal

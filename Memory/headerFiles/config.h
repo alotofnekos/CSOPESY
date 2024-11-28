@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
+#include <cmath>
 
 class config
 {
@@ -36,6 +37,7 @@ public:
     int getMemoryPerFrame() const;
     int getMinMemoryPerProcess() const;
     int getMaxMemoryPerProcess() const;
+    int powerOfTwo(const std::string& input);
 };
 
 

@@ -8,7 +8,7 @@ class process_block
 private:
     std::string name; 
     int core = -1; 
-    int executedInstructions; 
+    int executedInstructions=0; 
     int totalInstructions; 
     int memorySize;
 

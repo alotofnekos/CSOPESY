@@ -12,6 +12,8 @@ set(SOURCES
     memory.cpp
     process_block.cpp
     scheduler.cpp
+    Screen.cpp
+    ScreenManager.cpp
 )
 
 add_executable(OPESY ${SOURCES})

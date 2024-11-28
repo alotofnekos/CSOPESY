@@ -27,6 +27,7 @@ public:
     void printMemory(); 
     void generateReport(const std::string &file); 
     std::string removeOldestProcess();
+    int getTotalMemoryUsed() const;
 
     int max_overall_memory;
     int memory_per_frame;

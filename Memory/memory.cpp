@@ -152,3 +152,12 @@ std::string memory::removeOldestProcess() {
 
     return oldest->proc;
 }
+int memory::getTotalMemoryUsed() const {
+    int totalMemoryUsed = 0;
+    for (const auto& block : memoryBlocks) {
+        if (!block.proc.empty()) {
+            totalMemoryUsed += block.endAddress - block.startAddress + 1;
+        }
+    }
+    return totalMemoryUsed;
+}

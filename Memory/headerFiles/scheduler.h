@@ -12,7 +12,9 @@ struct core {
     int index; 
     std::thread *thread; 
     process_block *process_block;
-    bool assigned; 
+    bool assigned;
+    int activeTicks = 0;
+    int idleTicks = 0;
 }; 
 
 class scheduler
@@ -56,4 +58,7 @@ public:
     void generateReportThread();
     std::vector<core> *getCores();
     int getMaxOverallMemory();
+    int getTotalMemUsed();
+    process_block* findProcessByName(const std::string& processName) const;
+    bool procInMem(process_block* proc);
 };
