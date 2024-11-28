@@ -13,3 +13,5 @@
 /.vs/CSOPESY3/v17/Browse.VC.opendb
 /.vs/CSOPESY3/v17/DocumentLayout.json
 /.vs/ProjectSettings.json
+/.vs/CSOPESY3/v17/DocumentLayout.backup.json
+*.sqlite-journal
