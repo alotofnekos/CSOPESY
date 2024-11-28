@@ -50,7 +50,7 @@ void console::printReport(bool toFile) {
     
     int util = (static_cast<double>(activeCores) / (activeCores + inactiveCores)) * 100; 
 
-    out << "CPU utiliziation: " << util << "%";
+    out << "CPU utilization: " << util << "%";
     out << "\nCores used: " << activeCores;
     out << "\nCores available: " << inactiveCores << "\n";
     out << "-----------------------------------------------------------\n";
@@ -111,7 +111,7 @@ void console::printProcessSMI(bool toFile) {
 
     int util = (static_cast<double>(activeCores) / (activeCores + inactiveCores)) * 100;
     int memUtil = (static_cast<double>(totalMemoryUsed) / (consoleScheduler->getMaxOverallMemory())) * 100;
-    out << "CPU utiliziation: " << util << "%";
+    out << "CPU utilization: " << util << "%";
     out << "\nMemory Usage: " << totalMemoryUsed <<"MiB / " << consoleScheduler->getMaxOverallMemory() <<"MiB";
     out << "\nMemory Utilization: " << memUtil << "%\n";
     out << "-----------------------------------------------------------\n";
