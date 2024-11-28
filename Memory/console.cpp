@@ -137,6 +137,19 @@ void console::printProcessSMI(bool toFile) {
         }
     }
     out << "-----------------------------------------------------------\n";
+
+    out << "\nBackground Processes and Memory Usage: \n";
+
+    out << "-----------------------------------------------------------\n";
+    for (const auto& process_block : *processes)
+    {
+        if ((process_block->getWaiting() == true) && !(process_block->getDone() == true))
+        {
+            out << process_block->getName() << "\t Status: Waiting" << "\t" << process_block->getMemorySize() << "\n";
+        }
+    }
+    out << "-----------------------------------------------------------\n";
+
     if (toFile) {
         logFile.close();
     }
