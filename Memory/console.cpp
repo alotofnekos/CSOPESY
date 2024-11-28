@@ -121,8 +121,8 @@ void console::vmstat() {
     std::cout << "\nIdle CPU Ticks: " << idleCPUTicks;
     std::cout << "\nActive CPU Ticks: " << activeCPUTicks;
     std::cout << "\nTotal CPU Ticks: " << activeCPUTicks + idleCPUTicks;
-    std::cout << "\nNum Paged in: " << activeCPUTicks << " (Placeholder) ";
-    std::cout << "\nNum Paged Out: " << activeCPUTicks << " (Placeholder)";
+    std::cout << "\nNum Paged in: " << activeCPUTicks - activeCPUTicks << "";
+    std::cout << "\nNum Paged Out: " << activeCPUTicks - activeCPUTicks << "";
     std::cout << "\n-----------------------------------------------------------\n";
 
 }
@@ -163,9 +163,11 @@ void console::interpreter(const std::string &command) {
             consoleScheduler->setGenerateProcesses(true); 
             consoleScheduler->startGenerateProcessesThread(); 
             consoleScheduler->generateReportThread();
+            std::cout << "Scheduler Test started. Generating Processes...\n";
         } else if (command == "scheduler-stop")
         {
             consoleScheduler->setGenerateProcesses(false); 
+            std::cout << "Stopped scheduler test.\n";
         } else if (command == "clear")
         {
             system("cls");
