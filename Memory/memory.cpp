@@ -5,8 +5,19 @@
 #include <iomanip>
 #include <mutex>
 
-memory::memory(int max_overall_memory, int memory_per_frame, int memory_per_process) : max_overall_memory(max_overall_memory), memory_per_frame(memory_per_frame), memory_per_process(memory_per_process) {
-    memoryBlocks.push_back({0, max_overall_memory - 1, ""});
+memory::memory(int max_overall_memory, int memory_per_frame, int memory_per_process) 
+    : max_overall_memory(max_overall_memory), 
+      memory_per_frame(memory_per_frame), 
+      memory_per_process(memory_per_process),
+      frameTable(max_overall_memory / memory_per_frame) // Initialize frameTable
+{
+    // Initialize the freeFramesList in the constructor based on frameTable
+    freeFramesList.reserve(frameTable.size()); // Reserve space in vector for performance optimization
+    for (int i = 0; i < frameTable.size(); i++) {
+        freeFramesList.push_back(i); // Initially, all frames are free, so add all indices to freeFramesList
+    }
+
+    memoryBlocks.push_back({0, max_overall_memory - 1, ""}); // Initial memory block
 }
 
 int memory::findFit(int size) {
@@ -169,4 +180,79 @@ int memory::getTotalMemoryUsed() const {
         }
     }
     return totalMemoryUsed;
+}
+
+void memory::populateFreeFramesList() {
+    freeFramesList.clear(); // Clear the list before adding fresh values
+    for (int i = 0; i < frameTable.size(); i++) {
+        if (frameTable[i].proc == "") {
+            freeFramesList.push_back(i); // Add only free frames
+        }
+    }
+}
+
+bool memory::allocateFrames(const std::string &proc, int pages) {
+    generateReportFrames();
+    if (pages > freeFramesList.size()) {
+        return false; // If there are not enough free frames
+    }
+    for (int i = 0; i < pages; i++) {
+        // Assign the frame
+        frameTable[freeFramesList[i]].proc = proc;
+        frameTable[freeFramesList[i]].timestamp = std::time(nullptr);
+    }
+    // Remove allocated frames from the free list
+    freeFramesList.erase(freeFramesList.begin(), freeFramesList.begin() + pages);
+    return true;
+}
+
+void memory::deallocateFrames(const std::string &proc) {
+    for (auto &frame : frameTable) {
+        if (frame.proc == proc) {
+            frame.proc = ""; // Free the frame
+        }
+    }
+    populateFreeFramesList(); // Repopulate the free frames list after deallocation
+}
+
+bool memory::searchProcFrames(const std::string &proc) {
+    for (const auto &frame : frameTable) {
+        if (frame.proc == proc) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string memory::removeOldestProcessFrame() {
+    auto oldest = std::min_element(frameTable.begin(), frameTable.end(),
+        [](const frame &a, const frame &b) {
+            return !a.proc.empty() && (b.proc.empty() || a.timestamp < b.timestamp);
+        });
+
+    std::string evictedProc = oldest->proc;
+    deallocateFrames(evictedProc);
+    return evictedProc;
+}
+
+void memory::generateReportFrames() {
+    time_t t = std::time(nullptr);
+    std::cout << "Timestamp: " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << std::endl; 
+    std::cout << "Number of processes in memory: " << std::count_if(frameTable.begin(), frameTable.end(), [](const frame &frame) { return !frame.proc.empty(); }) << std::endl;
+    std::cout<< "Total external fragmentation: " << getExternalFragmentation() << " KB" << std::endl; 
+    std::cout << "Memory Layout: " << std::endl; 
+    std::cout << "----start---- = 0" << std::endl;
+
+    int pageCounter = 0;
+    for (const auto &frame : frameTable)
+    {
+        if (frame.proc.empty()) {
+            std::cout << "Free Frame" << std::endl;
+        } else {
+            std::cout << frame.proc << " Page " << pageCounter << std::endl;  // Include the process and the page number
+        }
+        pageCounter++;
+    }
+
+    std::cout << "----end---- = " << max_overall_memory << std::endl;
 }

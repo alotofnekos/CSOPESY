@@ -17,6 +17,7 @@ private:
     bool isWaiting = false; 
 
 public:
+    std::vector<int> occupiedFrameIndex; 
     process_block(std::string name);
 
     std::time_t startTime = 0; 

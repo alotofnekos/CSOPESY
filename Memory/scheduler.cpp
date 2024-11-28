@@ -218,9 +218,32 @@ void scheduler::RR(int index) {
                         queueProcess(*oldestProc);
                     }
                 }
-            } else
+            } 
+            else
             {
-                // TODO: Paging Allocator 
+                if (!memory.searchProcFrames(proc->getName()))
+                {
+                    int pages = std::ceil(proc->getMemorySize() / static_cast<double>(memory_per_frame));
+                    while (!memory.allocateFrames(proc->getName(), pages))
+                    {
+                        std::string oldestProcName = memory.removeOldestProcessFrame();
+                        auto oldestProc = std::find_if(processes->begin(), processes->end(), [oldestProcName](const process_block *proc) {return proc->getName() == oldestProcName;});
+
+                        for (auto &core : cores)
+                        {
+                            if (core.process_block == *oldestProc)
+                            {
+                                core.process_block = nullptr;
+                                core.assigned = false;
+                            }
+                        }
+
+                        (*oldestProc)->setRunning(false);
+                        (*oldestProc)->setWaiting(true);
+                        queueProcess(*oldestProc);
+                    }
+                }
+                
             }
         }
 
