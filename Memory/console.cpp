@@ -145,7 +145,7 @@ void console::printProcessSMI(bool toFile) {
     {
         if ((process_block->getWaiting() == true) && !(process_block->getDone() == true))
         {
-            out << process_block->getName() << "\t Status: Waiting" << "\t" << process_block->getMemorySize() << "\n";
+            out << process_block->getName() << "\t Status: Waiting" << "\t" << process_block->getMemorySize() << "MiB\n";
         }
     }
     out << "-----------------------------------------------------------\n";
