@@ -68,17 +68,15 @@ int scheduler::setRandMemorySize() {
     int lowerBound = ceil(log2(min_mem_per_proc));  
     int upperBound = floor(log2(max_mem_per_proc)); 
 
-    // Generate all powers of 2 in the range [min, max]
     std::vector<int> powersOfTwo;
     for (int i = lowerBound; i <= upperBound; ++i) {
-        powersOfTwo.push_back(1 << i); // 1 << i is the same as 2^i
+        powersOfTwo.push_back(1 << i); 
     }
     if (powersOfTwo.empty()) {
         std::cerr << "No power of 2 found in range." << std::endl;
-        return -1; // Handle the case where no valid power of 2 is found
+        return -1; 
     }
 
-    // Randomly select a power of 2
     int randomIndex = rand() % powersOfTwo.size();
     return powersOfTwo[randomIndex];
 }

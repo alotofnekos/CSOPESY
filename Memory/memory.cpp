@@ -33,10 +33,12 @@ bool memory::allocateMemory(const std::string &proc, int size) {
     if (freeBlock.endAddress - freeBlock.startAddress + 1 == size)
     {
         freeBlock.proc = proc; 
+        freeBlock.timestamp = std::time(nullptr);
     } 
     else
     {
         memoryBlock insertion = {freeBlock.startAddress, freeBlock.startAddress + size - 1, proc};
+        freeBlock.timestamp = std::time(nullptr);
         freeBlock.startAddress += size; 
         memoryBlocks.insert(memoryBlocks.begin() + i, insertion);
     }
@@ -147,11 +149,18 @@ void memory::generateReport(const std::string &file) {
 }
 
 std::string memory::removeOldestProcess() {
-    auto oldest = std::min_element(memoryBlocks.begin(), memoryBlocks.end(), [](const memoryBlock &a, const memoryBlock &b) {return a.timestamp < b.timestamp;});
-    deallocateMemory(oldest->proc);
+    auto oldest = std::min_element(memoryBlocks.begin(), memoryBlocks.end(),
+        [](const memoryBlock &a, const memoryBlock &b) {
+            return !a.proc.empty() && (b.proc.empty() || a.timestamp < b.timestamp);
+        });
 
-    return oldest->proc;
+    std::string evictedProc = oldest->proc;
+
+    deallocateMemory(evictedProc);
+
+    return evictedProc;
 }
+
 int memory::getTotalMemoryUsed() const {
     int totalMemoryUsed = 0;
     for (const auto& block : memoryBlocks) {
