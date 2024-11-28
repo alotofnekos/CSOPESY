@@ -197,7 +197,7 @@ void scheduler::RR(int index) {
         
         {
             std::lock_guard<std::mutex> lock(memoryMTX);
-            if (max_overall_memory = memory_per_frame)
+            if (max_overall_memory == memory_per_frame)
             {
                 if (!memory.searchProc(proc->getName())) 
                 {

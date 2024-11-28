@@ -194,20 +194,13 @@ int config::getMaxMemoryPerProcess() const {
 }
 
 int config::powerOfTwo(const std::string& input) {
-    char base, caret;
-    int exponent;
-
-    // Parse the input for "2^n" format
-    std::istringstream iss(input);
-    iss >> base >> caret >> exponent;
-
-    // Validate format and content
-    if (base != '2' || caret != '^') {
-        return -1; // Invalid format
+    try {
+        int value = std::stoi(input); 
+        if (value <= 0 || (value & (value - 1)) != 0) {
+            return -1; 
+        }
+        return value; 
+    } catch (...) {
+        return -1; 
     }
-
-    if (exponent < 0 || exponent > 31) { 
-        return -1; // Invalid exponent
-    }
-    return 1 << exponent; 
 }

@@ -27,7 +27,7 @@ public:
         std::time_t now = std::time(0);
         char buf[80];
         struct tm timeinfo;
-        localtime_s(&timeinfo, &now);
+        localtime_r(&now, &timeinfo);
         strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &timeinfo);
         return std::string(buf);
     }
