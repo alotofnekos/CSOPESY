@@ -145,3 +145,13 @@ void memory::generateReport(const std::string &file) {
     report << "----end---- = " << max_overall_memory << std::endl;
     report.close(); 
 }
+
+int memory::getTotalMemoryUsed() const {
+    int totalMemoryUsed = 0;
+    for (const auto& block : memoryBlocks) {
+        if (!block.proc.empty()) {
+            totalMemoryUsed += block.endAddress - block.startAddress + 1;
+        }
+    }
+    return totalMemoryUsed;
+}

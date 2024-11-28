@@ -139,7 +139,7 @@ void scheduler::RR(int index) {
         
         {
             std::lock_guard<std::mutex> lock(memoryMTX);
-            if (!memory.searchProc(proc->getName()) && !memory.allocateMemory(proc->getName(), memory.memory_per_process)) 
+            if (!memory.searchProc(proc->getName()) && !memory.allocateMemory(proc->getName(), proc->getMemorySize())) 
             {
                 queueProcess(proc);
                 proc = nullptr;
@@ -222,4 +222,8 @@ std::vector<core> *scheduler::getCores() {
 
 int scheduler::getMaxOverallMemory() {
     return max_overall_memory; 
+}
+
+int scheduler::getTotalMemUsed() {
+    return memory.getTotalMemoryUsed();
 }

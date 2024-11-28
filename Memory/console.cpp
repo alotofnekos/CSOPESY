@@ -44,14 +44,6 @@ void console::printReport() {
     std::cout << "-----------------------------------------------------------\n";
 
     std::cout << "\n\nRunning Processes: \n";
-
-    // for (const auto &process_block : *processes)
-    // {
-    //     if (process_block->getDone() == false)
-    //     {
-    //         std::cout << process_block->getName() << "\t(" << std::put_time(std::localtime(&process_block->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Core: " << process_block->getCore() << "\t " << process_block->getExecutedInstructions() << "/" << process_block->getTotalInstructions() << "\n";
-    //     }
-    // }
     
     for (const auto &core : *cores)
     {
@@ -79,7 +71,7 @@ void console::printProcessSMI() {
     std::cout << "-----------------------------------------------------------\n";
     int activeCores = 0;
     int inactiveCores = 0;
-    int totalMemoryUsed = 0;
+    int totalMemoryUsed = consoleScheduler->getTotalMemUsed();
     for (const auto& core : *cores)
     {
         if (core.assigned == false)
@@ -89,7 +81,6 @@ void console::printProcessSMI() {
         else
         {
             activeCores++;
-            totalMemoryUsed = totalMemoryUsed + core.process_block->getMemorySize();
         }
     }
 
@@ -118,15 +109,11 @@ void console::vmstat() {
     std::cout << "-----------------------------------------------------------\n";
     int idleCPUTicks = 0;
     int activeCPUTicks = 0;
-    int totalMemoryUsed = 0;
+    int totalMemoryUsed = consoleScheduler->getTotalMemUsed();
     for (const auto& core : *cores)
     {
         idleCPUTicks = idleCPUTicks + core.idleTicks;
         activeCPUTicks = activeCPUTicks + core.activeTicks;
-        if (core.assigned == true)
-        {
-            totalMemoryUsed = totalMemoryUsed + core.process_block->getMemorySize();
-        }
     }
     std::cout << "\nTotal Memory: " << consoleScheduler->getMaxOverallMemory() << "MiB";
     std::cout << "\nUsed Memory: " << totalMemoryUsed << "MiB";

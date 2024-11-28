@@ -58,4 +58,5 @@ public:
     void generateReportThread();
     std::vector<core> *getCores();
     int getMaxOverallMemory();
+    int getTotalMemUsed();
 };
