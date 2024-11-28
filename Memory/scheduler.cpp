@@ -111,7 +111,65 @@ void scheduler::startGenerateProcessesThread() {
 }
 
 void scheduler::FCFS(int index) {
+    process_block *proc = nullptr;
 
+    while (true)
+    {
+        if (proc == nullptr)
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            cond.wait(lock, [this] {return !readyQueue.empty();});
+
+            if (readyQueue.empty())
+            {
+                return;
+            }
+
+            proc = readyQueue.front();
+            if (proc == nullptr)
+            {
+                continue; 
+            }
+            readyQueue.pop();
+        }
+        
+        {
+            std::lock_guard<std::mutex> lock(memoryMTX);
+            if (!memory.searchProc(proc->getName()) && !memory.allocateMemory(proc->getName(), memory.memory_per_process)) 
+            {
+                queueProcess(proc);
+                proc = nullptr;
+                continue;
+            }
+            
+        }
+
+        cores[index].process_block = proc; 
+        cores[index].assigned = true; 
+
+        proc->setCore(index);
+        proc->setRunning(true);
+        proc->setWaiting(false); 
+
+        if(proc->startTime == 0) {
+            proc->startTime = std::time(nullptr);
+        }
+
+        while (proc->getExecutedInstructions() < proc->getTotalInstructions())
+        {
+            proc->setExecutedInstructions(proc->getExecutedInstructions() + 1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500));
+        }
+
+        proc->endTime = std::time(nullptr);
+        proc->setRunning(false);
+        proc->setDone(true);
+        cores[index].process_block = nullptr;
+        cores[index].assigned = false;
+        memory.deallocateMemory(proc->getName()); 
+        doneProcesses.push_back(proc);
+        proc = nullptr;
+    }
 }
 
 void scheduler::RR(int index) {
@@ -196,7 +254,7 @@ void scheduler::RR(int index) {
 
 void scheduler::generateReport() {
     int round = 0;
-    while (generateProcesses)
+    while (true)
     {
         std::stringstream format;
         format << "memory_stamp_" << round << ".txt";
@@ -205,7 +263,7 @@ void scheduler::generateReport() {
             memory.generateReport(format.str());
         }
         round += quantum_cycles;
-        std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec + 1 * 500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500));
     }
 }
 
