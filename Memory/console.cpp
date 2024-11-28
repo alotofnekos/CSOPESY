@@ -2,10 +2,11 @@
 #include "headerFiles/console.h"
 #include "headerFiles/process_block.h"
 #include "headerFiles/scheduler.h"
+#include "headerFiles/Screen.h"
+#include "headerFiles/ScreenManager.h"
 #include <cstdlib>
 #include <ctime>
 #include <iomanip>
-
 
 console::console() : consoleScheduler(nullptr), initialized(false) {}
 
@@ -22,85 +23,6 @@ void console::displayBanner() {
 	std::cout << "type 'exit' to quit, or 'clear' to clear the screen\n";
 }
 
-class Screen {
-private:
-    std::string borderStyle;
-    std::string name;
-    std::string creationDate;
-    process_block* process; // Pointer to the process associated with the screen
-
-public:
-    Screen(const std::string& borderStyle, const std::string& name, process_block* proc)
-        : borderStyle(borderStyle), name(name), creationDate(console::timestamp()), process(proc) {
-    }
-
-    void create() const {
-        std::string content = " Screen Name: " + name + "\n Date Created: " + creationDate;
-        content += "\n Process Name: " + process->getName();
-
-        if ((process->getTotalInstructions()) == (process->getExecutedInstructions())) {
-            content += "\n Finished";
-        }
-        else {
-            content += "\n Total Instructions: " + std::to_string(process->getTotalInstructions())
-                + "\n Executed Instructions: " + std::to_string(process->getExecutedInstructions())
-                +"\n Memory Used: " + std::to_string(process->getMemorySize()) + " MiB ";
-        }
-        size_t width = 40;
-        // Borders
-        std::cout << std::string(width, borderStyle[0]) << std::endl;
-        std::cout << content << std::endl;
-        std::cout << std::string(width, borderStyle[0]) << std::endl;
-    }
-
-    std::string getName() const {
-        return name;
-    }
-};
-
-class ScreenManager {
-private:
-    std::vector<Screen> screens;
-    std::string getBorderStyle(size_t index) const {
-        switch (index % 5) {
-        case 0: return "#";
-        case 1: return "*";
-        case 2: return "~";
-        case 3: return "x";
-        case 4: return "+";
-        default: return "#";
-        }
-    }
-
-public:
-
-    void addScreen(const std::string& name, process_block* process) {
-        std::string borderStyle = getBorderStyle(screens.size());
-        Screen newScreen(borderStyle, name, process);
-        screens.push_back(newScreen);
-    }
-
-    void callScreen(const std::string& name) const {
-        for (size_t i = 0; i < screens.size(); ++i) {
-            if (screens[i].getName() == name) {
-                screens[i].create();
-                return;
-            }
-        }
-        std::cout << "Screen named \"" << name << "\" not found." << std::endl;
-    }
-
-    bool screenExists(const std::string& name) const {
-        for (size_t i = 0; i < screens.size(); ++i) {
-            if (screens[i].getName() == name) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-};
 
 void console::printReport(bool toFile) {
     int activeCores = 0;
@@ -246,7 +168,7 @@ void console::vmstat(bool toFile) {
 }
 
 void console::interpreter(const std::string& command) {
-    ScreenManager manager;
+    
     if (!initialized && command != "initialize" && command != "exit")
     {
         if (command == "clear")

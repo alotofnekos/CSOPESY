@@ -1,6 +1,8 @@
 #pragma once
 #include "process_block.h"
 #include "scheduler.h"
+#include "Screen.h"
+#include "ScreenManager.h"
 #include <string> 
 #include <vector> 
 #include <ctime>
@@ -11,6 +13,7 @@ private:
     std::vector<core> *cores; 
     scheduler *consoleScheduler; 
     bool initialized = false; 
+    ScreenManager manager;
 public:
     console(/* args */);
 
