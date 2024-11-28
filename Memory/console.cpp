@@ -64,6 +64,16 @@ void console::printReport(bool toFile) {
             out << core.process_block->getName() << "\t(" << std::put_time(std::localtime(&core.process_block->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Core: " << core.process_block->getCore() << "\t " << core.process_block->getExecutedInstructions() << "/" << core.process_block->getTotalInstructions() << "\n";
         }
     }
+
+    out << "\n\nWaiting Processes: \n";
+
+    for (const auto& process_block : *processes)
+    {
+        if (process_block->getWaiting() == true)
+        {
+            out << process_block->getName() << "\t (" << std::put_time(std::localtime(&process_block->startTime), "%Y-%m-%d %H:%M:%S") << ")\t Status: Waiting" << "\t" << process_block->getExecutedInstructions() << "/" << process_block->getTotalInstructions() << "\n";
+        }
+    }
     
     out << "\n\nFinished Processes: \n";
 
