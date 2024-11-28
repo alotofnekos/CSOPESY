@@ -69,9 +69,9 @@ void console::printReport(bool toFile) {
 
     for (const auto& process_block : *processes)
     {
-        if (process_block->getWaiting() == true)
+        if ((process_block->getWaiting() == true)&&!(process_block->getDone() == true))
         {
-            out << process_block->getName() << "\t (" << std::put_time(std::localtime(&process_block->startTime), "%Y-%m-%d %H:%M:%S") << ")\t Status: Waiting" << "\t" << process_block->getExecutedInstructions() << "/" << process_block->getTotalInstructions() << "\n";
+            out << process_block->getName() << "\t Status: Waiting" << "\t" << process_block->getExecutedInstructions() << "/" << process_block->getTotalInstructions() << "\n";
         }
     }
     
