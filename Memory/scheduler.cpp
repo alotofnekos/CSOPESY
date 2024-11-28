@@ -166,8 +166,8 @@ void scheduler::RR(int index) {
         {
             proc->setExecutedInstructions(proc->getExecutedInstructions() + 1);
             cores[index].activeTicks++;
-            cores[index].idleTicks= cores[index].idleTicks+delays_per_exec-1;
-            std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500));
+            cores[index].idleTicks = cores[index].idleTicks + delays_per_exec;
+            std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500 + 500));
         }
         
         if (proc->getExecutedInstructions() == proc->getTotalInstructions())
