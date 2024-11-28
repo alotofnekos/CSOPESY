@@ -133,13 +133,23 @@ void scheduler::FCFS(int index) {
         
         {
             std::lock_guard<std::mutex> lock(memoryMTX);
-            if (!memory.searchProc(proc->getName()) && !memory.allocateMemory(proc->getName(), proc->getMemorySize())) 
+            if (max_overall_memory == memory_per_frame)
             {
-                queueProcess(proc);
-                proc = nullptr;
-                continue;
+                if (!memory.searchProc(proc->getName()) && !memory.allocateMemory(proc->getName(), proc->getMemorySize())) 
+                {
+                    queueProcess(proc);
+                    proc = nullptr;
+                    continue;
+                }
+            } else
+            {
+                if (!memory.searchProcFrames(proc->getName()) && !memory.allocateFrames(proc->getName(), std::ceil(proc->getMemorySize() / static_cast<double>(memory_per_frame))))
+                {
+                    queueProcess(proc);
+                    proc = nullptr;
+                    continue;
+                }
             }
-            
         }
 
         cores[index].process_block = proc; 
