@@ -102,9 +102,18 @@ public:
 
 };
 
-void console::printReport() {
+void console::printReport(bool toFile) {
     int activeCores = 0;
     int inactiveCores = 0; 
+    std::ofstream logFile;
+    if (toFile) {
+        logFile.open("csopesylog.txt", std::ios::app);  // Open in append mode
+        if (!logFile.is_open()) {
+            std::cerr << "Error opening csopesylog.txt for logging." << std::endl;
+            return;
+        }
+    }
+    std::ostream& out = toFile ? logFile : std::cout;
 
     for (const auto &core : *cores)
     {
@@ -119,37 +128,50 @@ void console::printReport() {
     
     int util = (static_cast<double>(activeCores) / (activeCores + inactiveCores)) * 100; 
 
-    std::cout << "CPU utiliziation: " << util << "%";
-    std::cout << "\nCores used: " << activeCores;
-    std::cout << "\nCores available: " << inactiveCores << "\n";
-    std::cout << "-----------------------------------------------------------\n";
+    out << "CPU utiliziation: " << util << "%";
+    out << "\nCores used: " << activeCores;
+    out << "\nCores available: " << inactiveCores << "\n";
+    out << "-----------------------------------------------------------\n";
 
-    std::cout << "\n\nRunning Processes: \n";
+    out << "\n\nRunning Processes: \n";
     
     for (const auto &core : *cores)
     {
         if (core.assigned == true)
         {
-            std::cout << core.process_block->getName() << "\t(" << std::put_time(std::localtime(&core.process_block->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Core: " << core.process_block->getCore() << "\t " << core.process_block->getExecutedInstructions() << "/" << core.process_block->getTotalInstructions() << "\n";
+            out << core.process_block->getName() << "\t(" << std::put_time(std::localtime(&core.process_block->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Core: " << core.process_block->getCore() << "\t " << core.process_block->getExecutedInstructions() << "/" << core.process_block->getTotalInstructions() << "\n";
         }
     }
     
-    std::cout << "\n\nFinished Processes: \n";
+    out << "\n\nFinished Processes: \n";
 
     for (const auto &process_block : *processes)
     {
         if (process_block->getDone() == true)
         {
-            std::cout << process_block->getName() << "\t (" << std::put_time(std::localtime(&process_block->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Status: Finished" << "\t" << process_block->getExecutedInstructions() << "/" << process_block->getTotalInstructions() << "\n";
+            out << process_block->getName() << "\t (" << std::put_time(std::localtime(&process_block->startTime),"%Y-%m-%d %H:%M:%S") << ")\t Status: Finished" << "\t" << process_block->getExecutedInstructions() << "/" << process_block->getTotalInstructions() << "\n";
         }    
     }
-    std::cout << "-----------------------------------------------------------\n";
+    out << "-----------------------------------------------------------\n";
+
+    if (toFile) {
+        logFile.close();
+    }
 }
 
-void console::printProcessSMI() {
-    std::cout << "-----------------------------------------------------------\n";
-    std::cout << "||    PROCESS-SMI V01.00         DRIVER VERSION: 1.00    ||\n";
-    std::cout << "-----------------------------------------------------------\n";
+void console::printProcessSMI(bool toFile) {
+    std::ofstream logFile;
+    if (toFile) {
+        logFile.open("csopesylog.txt", std::ios::app);  // Open in append mode
+        if (!logFile.is_open()) {
+            std::cerr << "Error opening csopesylog.txt for logging." << std::endl;
+            return;
+        }
+    }
+    std::ostream& out = toFile ? logFile : std::cout;
+    out << "-----------------------------------------------------------\n";
+    out << "||    PROCESS-SMI V01.00         DRIVER VERSION: 1.00    ||\n";
+    out << "-----------------------------------------------------------\n";
     int activeCores = 0;
     int inactiveCores = 0;
     int totalMemoryUsed = consoleScheduler->getTotalMemUsed();
@@ -167,27 +189,40 @@ void console::printProcessSMI() {
 
     int util = (static_cast<double>(activeCores) / (activeCores + inactiveCores)) * 100;
     int memUtil = (static_cast<double>(totalMemoryUsed) / (consoleScheduler->getMaxOverallMemory())) * 100;
-    std::cout << "CPU utiliziation: " << util << "%";
-    std::cout << "\nMemory Usage: " << totalMemoryUsed <<"MiB / " << consoleScheduler->getMaxOverallMemory() <<"MiB";
-    std::cout << "\nMemory Utilization: " << memUtil << "%\n";
-    std::cout << "-----------------------------------------------------------\n";
+    out << "CPU utiliziation: " << util << "%";
+    out << "\nMemory Usage: " << totalMemoryUsed <<"MiB / " << consoleScheduler->getMaxOverallMemory() <<"MiB";
+    out << "\nMemory Utilization: " << memUtil << "%\n";
+    out << "-----------------------------------------------------------\n";
 
-    std::cout << "\nRunning Processes and Memory Usage: \n";
+    out << "\nRunning Processes and Memory Usage: \n";
 
-    std::cout << "-----------------------------------------------------------\n";
+    out << "-----------------------------------------------------------\n";
     for (const auto& core : *cores)
     {
         if (core.assigned == true)
         {
-            std::cout << core.process_block->getName() << "\t" << core.process_block->getMemorySize() << "MiB\n";
+            out << core.process_block->getName() << "\t" << core.process_block->getMemorySize() << "MiB\n";
         }
+    }
+    out << "-----------------------------------------------------------\n";
+    if (toFile) {
+        logFile.close();
     }
 }
 
-void console::vmstat() {
-    std::cout << "-----------------------------------------------------------\n";
-    std::cout << "||               VIRTUAL MEMORY STATISTICS               ||\n";
-    std::cout << "-----------------------------------------------------------\n";
+void console::vmstat(bool toFile) {
+    std::ofstream logFile;
+    if (toFile) {
+        logFile.open("csopesylog.txt", std::ios::app);  // Open in append mode
+        if (!logFile.is_open()) {
+            std::cerr << "Error opening csopesylog.txt for logging." << std::endl;
+            return;
+        }
+    }
+    std::ostream& out = toFile ? logFile : std::cout;
+    out << "-----------------------------------------------------------\n";
+    out << "||               VIRTUAL MEMORY STATISTICS               ||\n";
+    out << "-----------------------------------------------------------\n";
     int idleCPUTicks = 0;
     int activeCPUTicks = 0;
     int totalMemoryUsed = consoleScheduler->getTotalMemUsed();
@@ -196,16 +231,18 @@ void console::vmstat() {
         idleCPUTicks = idleCPUTicks + core.idleTicks;
         activeCPUTicks = activeCPUTicks + core.activeTicks;
     }
-    std::cout << "\nTotal Memory: " << consoleScheduler->getMaxOverallMemory() << "MiB";
-    std::cout << "\nUsed Memory: " << totalMemoryUsed << "MiB";
-    std::cout << "\nFree Memory: " << (consoleScheduler->getMaxOverallMemory()) - totalMemoryUsed << "MiB";
-    std::cout << "\nIdle CPU Ticks: " << idleCPUTicks;
-    std::cout << "\nActive CPU Ticks: " << activeCPUTicks;
-    std::cout << "\nTotal CPU Ticks: " << activeCPUTicks + idleCPUTicks;
-    std::cout << "\nNum Paged in: " << activeCPUTicks - activeCPUTicks << "";
-    std::cout << "\nNum Paged Out: " << activeCPUTicks - activeCPUTicks << "";
-    std::cout << "\n-----------------------------------------------------------\n";
-
+    out << "\nTotal Memory: " << consoleScheduler->getMaxOverallMemory() << "MiB";
+    out << "\nUsed Memory: " << totalMemoryUsed << "MiB";
+    out << "\nFree Memory: " << (consoleScheduler->getMaxOverallMemory()) - totalMemoryUsed << "MiB";
+    out << "\nIdle CPU Ticks: " << idleCPUTicks;
+    out << "\nActive CPU Ticks: " << activeCPUTicks;
+    out << "\nTotal CPU Ticks: " << activeCPUTicks + idleCPUTicks;
+    out << "\nNum Paged in: " << activeCPUTicks - activeCPUTicks << "";
+    out << "\nNum Paged Out: " << activeCPUTicks - activeCPUTicks << "";
+    out << "\n-----------------------------------------------------------\n";
+    if (toFile) {
+        logFile.close();
+    }
 }
 
 void console::interpreter(const std::string& command) {
@@ -263,7 +300,15 @@ void console::interpreter(const std::string& command) {
         }
         else if (command == "screen -ls")
         {
-            printReport();
+            printReport(false);
+        }
+        else if (command == "report-util")
+        {
+            printReport(true);
+            printProcessSMI(true);
+            vmstat(true);
+            std::cout << "Report generated at csopesylog.txt in the same folder as the emulator!" << std::endl;
+
         }
         else if (command.rfind("screen -s", 0) == 0) {
             size_t startPos = command.find("-s") + 3;  // +3 to skip "-s " part
@@ -348,11 +393,11 @@ void console::interpreter(const std::string& command) {
         }   
         else if (command == "process-smi")
         { 
-            printProcessSMI();
+            printProcessSMI(false);
         }
         else if (command == "vmstat") {
 
-            vmstat();
+            vmstat(false);
 
         }
         else if (command == "exit")

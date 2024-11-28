@@ -15,9 +15,9 @@ public:
     console(/* args */);
 
     void displayBanner(); 
-    void printReport();
-    void printProcessSMI();
-    void vmstat();
+    void printReport(bool toFile);
+    void printProcessSMI(bool toFile);
+    void vmstat(bool toFile);
     void interpreter(const std::string &command);
     void start();
     static std::string timestamp() {
