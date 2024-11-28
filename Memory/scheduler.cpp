@@ -227,3 +227,14 @@ int scheduler::getMaxOverallMemory() {
 int scheduler::getTotalMemUsed() {
     return memory.getTotalMemoryUsed();
 }
+
+process_block* scheduler::findProcessByName(const std::string& processName) const {
+    std::mutex mtx;
+    std::lock_guard<std::mutex> guard(mtx);  
+    for (auto* proc : *processes) {
+        if (proc->getName() == processName) {
+            return proc; 
+        }
+    }
+    return nullptr; 
+}

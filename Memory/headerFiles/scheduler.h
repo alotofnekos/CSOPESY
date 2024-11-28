@@ -59,4 +59,5 @@ public:
     std::vector<core> *getCores();
     int getMaxOverallMemory();
     int getTotalMemUsed();
+    process_block* findProcessByName(const std::string& processName) const;
 };
