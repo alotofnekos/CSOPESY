@@ -389,7 +389,8 @@ void console::interpreter(const std::string& command) {
             }
         }
         else if (command.rfind("screen", 0) == 0) {
-            std::cout << "Syntax: screen -s <name>" << std::endl;
+            std::cout << "Syntax: screen -s <name> Make new screen of Process <name>\n" << std::endl;
+            std::cout << "        screen -r <name> Retrieve screen of Process <name>" << std::endl;
         }   
         else if (command == "process-smi")
         { 
