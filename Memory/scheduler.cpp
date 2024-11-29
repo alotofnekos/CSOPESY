@@ -166,6 +166,8 @@ void scheduler::FCFS(int index) {
         while (proc->getExecutedInstructions() < proc->getTotalInstructions())
         {
             proc->setExecutedInstructions(proc->getExecutedInstructions() + 1);
+            cores[index].activeTicks++;
+            cores[index].idleTicks = cores[index].idleTicks + delays_per_exec;
             std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500));
         }
 
