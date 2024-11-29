@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <iomanip>
 #include <mutex>
+#include <sstream>
 
 memory::memory(int max_overall_memory, int memory_per_frame, int memory_per_process) 
     : max_overall_memory(max_overall_memory), 
@@ -199,7 +200,7 @@ void memory::populateFreeFramesList() {
 }
 
 bool memory::allocateFrames(const std::string &proc, int pages) {
-    // generateReportFrames();
+    generateReportFrames();
     if (pages > freeFramesList.size()) {
         return false; // If there are not enough free frames
     }
@@ -244,23 +245,58 @@ std::string memory::removeOldestProcessFrame() {
     return evictedProc;
 }
 
-void memory::generateReportFrames() {
-    time_t t = std::time(nullptr);
-    std::cout << "Timestamp: " << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S") << std::endl; 
-    std::cout << "Number of processes in memory: " << std::count_if(frameTable.begin(), frameTable.end(), [](const frame &frame) { return !frame.proc.empty(); }) << std::endl;
-    std::cout<< "Total external fragmentation: " << getExternalFragmentation() << " KB" << std::endl; 
-    std::cout << "Memory Layout: " << std::endl; 
-    std::cout << "----start---- = 0" << std::endl;
 
-    for (const auto &frame : frameTable)
-    {
+void memory::generateReportFrames() {
+    // Create the folder if it doesn't exist
+    std::filesystem::create_directory("memory_reports");
+
+    // Get the current timestamp for unique file naming
+    time_t t = std::time(nullptr);
+    struct tm* timeInfo = std::localtime(&t);
+    
+    // Format timestamp as "YYYY-MM-DD_HH-MM-SS"
+    std::ostringstream fileNameStream;
+    fileNameStream << "memory_reports/memory_report_"
+                   << std::put_time(timeInfo, "%Y-%m-%d_%H-%M-%S") << ".txt";
+    
+    std::string fileName = fileNameStream.str();
+
+    // Create and open the output file
+    std::ofstream reportFile(fileName);
+
+    // Check if the file is successfully opened
+    if (!reportFile.is_open()) {
+        std::cerr << "Error opening file for writing!" << std::endl;
+        return;
+    }
+
+    // Write timestamp
+    reportFile << "Timestamp: " << std::put_time(timeInfo, "%Y-%m-%d %H:%M:%S") << std::endl;
+
+    // Number of processes in memory
+    reportFile << "Number of processes in memory: " 
+               << std::count_if(frameTable.begin(), frameTable.end(), [](const frame &frame) { return !frame.proc.empty(); })
+               << std::endl;
+
+    // External fragmentation
+    reportFile << "Total external fragmentation: " << getExternalFragmentation() << " KB" << std::endl;
+
+    // Memory Layout
+    reportFile << "Memory Layout: " << std::endl;
+    reportFile << "----start---- = 0" << std::endl;
+
+    // Loop through the frameTable to output each frame's status
+    for (const auto &frame : frameTable) {
         if (frame.proc.empty()) {
-            std::cout << "Free Frame" << std::endl;
+            reportFile << "Free Frame" << std::endl;
         } else {
-            std::cout << frame.proc << " Page " << std::endl;  // Include the process 
+            reportFile << frame.proc << " Page " << std::endl;  // Include the process name
         }
     }
 
-    std::cout << "----end---- = " << max_overall_memory << std::endl;
+    reportFile << "----end---- = " << max_overall_memory << std::endl;
+
+    // Close the file after writing
+    reportFile.close();
 }
 
