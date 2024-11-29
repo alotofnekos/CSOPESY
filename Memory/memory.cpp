@@ -179,7 +179,14 @@ int memory::getTotalMemoryUsed() const {
             totalMemoryUsed += block.endAddress - block.startAddress + 1;
         }
     }
+
+    for (const auto& frame : frameTable) {
+        if (!frame.proc.empty()) {
+            totalMemoryUsed += memory_per_frame;
+        }
+    }
     return totalMemoryUsed;
+    
 }
 
 void memory::populateFreeFramesList() {
