@@ -167,6 +167,8 @@ void scheduler::FCFS(int index) {
         {
             proc->setExecutedInstructions(proc->getExecutedInstructions() + 1);
             std::this_thread::sleep_for(std::chrono::milliseconds(delays_per_exec * 500));
+            cores[index].activeTicks++;
+            cores[index].idleTicks = cores[index].idleTicks + delays_per_exec;
         }
 
         proc->endTime = std::time(nullptr);
@@ -174,7 +176,13 @@ void scheduler::FCFS(int index) {
         proc->setDone(true);
         cores[index].process_block = nullptr;
         cores[index].assigned = false;
-        memory.deallocateMemory(proc->getName()); 
+        if (max_overall_memory == memory_per_frame)
+        {
+            memory.deallocateMemory(proc->getName()); 
+        } else
+        {
+            memory.deallocateFrames(proc->getName());
+        }
         doneProcesses.push_back(proc);
         proc = nullptr;
     }
@@ -188,7 +196,10 @@ void scheduler::RR(int index) {
         if (proc == nullptr)
         {
             std::unique_lock<std::mutex> lock(mtx);
-            cond.wait(lock, [this] {return !readyQueue.empty();});
+            while (readyQueue.empty()) {
+                cores[index].idleTicks++; 
+                cond.wait_for(lock, std::chrono::milliseconds(500));
+            }
 
             if (readyQueue.empty())
             {
@@ -286,7 +297,14 @@ void scheduler::RR(int index) {
             proc->setDone(true);
             cores[index].process_block = nullptr;
             cores[index].assigned = false;
-            memory.deallocateMemory(proc->getName()); 
+            if (max_overall_memory == memory_per_frame)
+            {
+                memory.deallocateMemory(proc->getName()); 
+            } else
+            {
+                std::cout << "Deallocating frames for " << proc->getName() << std::endl;
+                memory.deallocateFrames(proc->getName());
+            }
             doneProcesses.push_back(proc);
             proc = nullptr;
         } 
@@ -350,4 +368,12 @@ process_block* scheduler::findProcessByName(const std::string& processName) cons
 
 bool scheduler::procInMem(process_block* proc) {
     return memory.searchProc(proc->getName());
+}
+
+int scheduler::getPagedIn() {
+    return memory.pagesIn; 
+}
+
+int scheduler::getPagedOut() {
+    return memory.pagesOut; 
 }

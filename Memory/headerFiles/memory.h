@@ -49,6 +49,9 @@ public:
     int memory_per_frame;
     int memory_per_process; 
 
+    int pagesIn = 0;
+    int pagesOut = 0;
+
     std::vector<frame> frameTable;
     std::vector<int> freeFramesList; 
 };

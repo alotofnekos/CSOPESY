@@ -61,4 +61,6 @@ public:
     int getTotalMemUsed();
     process_block* findProcessByName(const std::string& processName) const;
     bool procInMem(process_block* proc);
+    int getPagedIn();
+    int getPagedOut();
 };

@@ -192,7 +192,7 @@ void memory::populateFreeFramesList() {
 }
 
 bool memory::allocateFrames(const std::string &proc, int pages) {
-    generateReportFrames();
+    // generateReportFrames();
     if (pages > freeFramesList.size()) {
         return false; // If there are not enough free frames
     }
@@ -200,6 +200,7 @@ bool memory::allocateFrames(const std::string &proc, int pages) {
         // Assign the frame
         frameTable[freeFramesList[i]].proc = proc;
         frameTable[freeFramesList[i]].timestamp = std::time(nullptr);
+        pagesIn++; 
     }
     // Remove allocated frames from the free list
     freeFramesList.erase(freeFramesList.begin(), freeFramesList.begin() + pages);
@@ -210,6 +211,7 @@ void memory::deallocateFrames(const std::string &proc) {
     for (auto &frame : frameTable) {
         if (frame.proc == proc) {
             frame.proc = ""; // Free the frame
+            pagesOut++;
         }
     }
     populateFreeFramesList(); // Repopulate the free frames list after deallocation
@@ -243,16 +245,15 @@ void memory::generateReportFrames() {
     std::cout << "Memory Layout: " << std::endl; 
     std::cout << "----start---- = 0" << std::endl;
 
-    int pageCounter = 0;
     for (const auto &frame : frameTable)
     {
         if (frame.proc.empty()) {
             std::cout << "Free Frame" << std::endl;
         } else {
-            std::cout << frame.proc << " Page " << pageCounter << std::endl;  // Include the process and the page number
+            std::cout << frame.proc << " Page " << std::endl;  // Include the process 
         }
-        pageCounter++;
     }
 
     std::cout << "----end---- = " << max_overall_memory << std::endl;
 }
+

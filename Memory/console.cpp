@@ -186,8 +186,8 @@ void console::vmstat(bool toFile) {
     out << "\nIdle CPU Ticks: " << idleCPUTicks;
     out << "\nActive CPU Ticks: " << activeCPUTicks;
     out << "\nTotal CPU Ticks: " << activeCPUTicks + idleCPUTicks;
-    out << "\nNum Paged in: " << activeCPUTicks - activeCPUTicks << "";
-    out << "\nNum Paged Out: " << activeCPUTicks - activeCPUTicks << "";
+    out << "\nNum Paged in: " << consoleScheduler->getPagedIn() << "";
+    out << "\nNum Paged Out: " << consoleScheduler->getPagedOut() << "";
     out << "\n-----------------------------------------------------------\n";
     if (toFile) {
         logFile.close();
